@@ -188,6 +188,8 @@ A task is terminal only after acceptance and evidence are recorded. During close
 
 ## Quality Gate
 
+Reject documentation systems where one file tries to be live state, task queue, roadmap, run log, failure diagnosis, and stable contract at the same time.
+
 Before handoff, verify:
 
 - the first-time user was not forced to choose internal modes or document profiles;
@@ -201,6 +203,7 @@ Before handoff, verify:
 - plan stage and live phase agree;
 - every run/result has a trust level and artifact boundary;
 - stable contracts contain current accepted rules, not live blockers or proposed alternatives;
+- superseded, invalidated, or snapshot information cannot be mistaken for current guidance;
 - no deletion occurred without the safe-deletion gate;
 - the post-cleanup audit passes or remaining findings are explicitly accepted.
 
