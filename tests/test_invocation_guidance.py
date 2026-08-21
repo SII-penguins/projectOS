@@ -37,6 +37,10 @@ class InvocationGuidanceTest(unittest.TestCase):
         self.assertRegex(self.skill,re.compile(r'no more than five accepted questions',re.I))
         self.assertIn('stop questioning as soon as the current gate can proceed safely',self.skill)
 
+    def test_patch_a_quality_gates_are_preserved(self):
+        self.assertIn('Reject documentation systems where one file tries', self.skill)
+        self.assertIn('superseded, invalidated, or snapshot information cannot be mistaken', self.skill)
+
     def test_positive_and_negative_trigger_scenarios_exist(self):
         self.assertIn('Positive implicit triggers',self.scenarios)
         self.assertIn('Negative or lightweight cases',self.scenarios)
