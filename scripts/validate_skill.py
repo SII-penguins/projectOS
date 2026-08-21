@@ -91,15 +91,19 @@ def validate(root: Path) -> list[Finding]:
         "Audit before cleanup",
         "Promote before removing",
         "safe-deletion",
+        "The user never needs to learn ProjectOS modes",
+        "ask at most one decision-critical question",
     ):
         if invariant.lower() not in body.lower():
-            findings.append(Finding("ERROR", f"Missing lifecycle invariant: {invariant}"))
+            findings.append(Finding("ERROR", f"Missing ProjectOS invariant: {invariant}"))
 
     for relative in sorted(set(REFERENCE_RE.findall(text))):
         if not (root / relative).exists():
             findings.append(Finding("ERROR", f"Referenced path does not exist: {relative}"))
 
     required = {
+        "references/onboarding-and-invocation.md",
+        "references/evaluation-scenarios.md",
         "references/interrogation-checklist.md",
         "references/lifecycle-protocol.md",
         "references/document-blueprints.md",
@@ -119,6 +123,10 @@ def validate(root: Path) -> list[Finding]:
             findings.append(Finding("WARN", "OpenAI config does not enable implicit invocation"))
         if "$project-os" not in openai_text and "ProjectOS" not in openai_text:
             findings.append(Finding("WARN", "OpenAI default prompt does not name ProjectOS"))
+        if "choose Explore" in openai_text or "select an internal mode" in openai_text:
+            findings.append(Finding("ERROR", "OpenAI default prompt exposes internal mode selection"))
+        if "do not make me choose internal modes" not in openai_text:
+            findings.append(Finding("WARN", "OpenAI default prompt does not protect first-time users from mode selection"))
     else:
         findings.append(Finding("WARN", "agents/openai.yaml is missing"))
 

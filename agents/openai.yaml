@@ -1,7 +1,7 @@
 interface:
   display_name: "ProjectOS"
-  short_description: "Project operating system for agents"
-  default_prompt: "Use $project-os to design a canonical documentation system for my complex AI-assisted project."
+  short_description: "Start, organize, resume, or close complex projects"
+  default_prompt: "Use $project-os. I will describe a project idea or share an existing project; infer the right workflow, guide me one step at a time, and do not make me choose internal modes."
 
 policy:
   allow_implicit_invocation: true
