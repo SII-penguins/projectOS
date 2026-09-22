@@ -1,138 +1,31 @@
-# ProjectOS Onboarding and Invocation
+# Starting and Resuming a Project
 
-This reference defines how ProjectOS should feel to a first-time user. Internal routing may be complex; the user-facing experience must be simple and progressive.
+Use ordinary language to identify the requested outcome. This reference supplies decision aids, not mandatory turns or approvals.
 
-## 1. One Front Door
+| Request | Useful starting point |
+| --- | --- |
+| “我想开发一个长期项目，帮我规划。” | Outcome, scope, feasibility, constraints, and acceptance |
+| “把这份调研整理成项目计划和规范文档。” | Extract facts, decisions, proposals, contradictions, and missing evidence |
+| “TODO、PROGRESS 和计划冲突了，帮我整理。” | Inspect affected owners and reconcile against current evidence |
+| “继续上次的项目。” | Verify the current state and next action, then continue authorized work |
+| “这个阶段完成了，帮我收尾。” | Verify the outcome, preserve evidence, archive terminal tasks, update next action |
 
-The user can begin with ordinary language. They do not need to know the skill name, internal modes, canonical file set, or project-management vocabulary.
+Explicit `$project-os` invocation works with the same scope. Mentioning a filename such as `AGENTS.md` or asking how ProjectOS works does not by itself call for project initialization. Ordinary coding, isolated edits, and casual brainstorming remain lightweight.
 
-Representative triggers:
+## Establish the outcome
 
-| User says | Infer internally | First action |
-| --- | --- | --- |
-| “我想做/开发一个……” | New project | Understand outcome and inspect/research feasibility |
-| “这是我的报告/需求/调研……” | Material-backed project | Extract facts, decisions, contradictions, and gaps |
-| “TODO、Progress、计划冲突/过时了” | Existing-project maintenance | Read-only inventory and lifecycle audit |
-| “接着上次的项目做，先确认现在的真实状态。” | Resume | Verify freshness, repo state, references, and allowed next action |
-| “这个任务/阶段完成了” | Closeout | Verify acceptance/evidence, then close and compact |
+Read supplied material and relevant repository evidence before asking the user to repeat it. Research external facts when feasibility depends on them. Separate observed facts, user decisions, proposals, and unknowns.
 
-Do not show these internal route names unless the user asks how ProjectOS works.
+A brief can capture the goal, scope, constraints, acceptance, and unresolved decisions. Reuse an existing brief when it is adequate. If the user requests document creation, choose a small document map and create it using available evidence and material reversible assumptions. Present the map with the deliverable. Separate approval of the brief or map is needed only when the user requests staged review or a genuinely missing decision requires it.
 
-Explicit fallback invocation:
+For a rough idea, ask the most consequential missing question first. Do not fill a question quota. Batch short independent questions if that reduces friction; defer decisions that do not affect current work. The question bank is for finding a gap, not for quizzing the user on every field.
 
-```text
-$project-os <ordinary project request>
-```
+## Continue within the agreed scope
 
-## 2. First-Turn Response Contract
+The requested result determines the stopping point. “Plan only” does not authorize implementation. “Plan and implement” includes implementation and the relevant checks; do not stop after the first draft to ask whether to continue.
 
-The first ProjectOS response should normally contain only:
+For maintenance, inspect affected documents and establish a recoverable change set. A cleanup manifest may be an internal working table or part of delivery for already authorized reversible changes. Prepare the independent work before requesting any genuinely missing authorization for a specific consequential action.
 
-1. **Understanding** — one sentence explaining what the user appears to want.
-2. **Current step** — one sentence explaining what ProjectOS will do now.
-3. **Evidence action** — read supplied files/repository or research what can be verified.
-4. **One question maximum** — only when a decision-critical answer is needed immediately.
+Apply user corrections to the active task while preserving completed work. A side question need not discard the original objective. Keep material changes to scope, acceptance, and dependencies in their owner documents.
 
-Good:
-
-> 我理解你想做一个《某游戏》的玩法 MOD，但目前还需要先确认该游戏版本和可用的 MOD 工具链。我会先检查官方/社区支持与技术限制；当前只需要你确认目标平台是 PC 还是主机。
-
-Bad:
-
-> 请选择 Explore/Create/Maintain/Resume/Closeout，并选择 Lean/Core/Research/Team Profile，然后回答下面 23 个问题。
-
-Do not display the full document list, lifecycle taxonomy, or cleanup procedure before it becomes relevant.
-
-## 3. Internal Router
-
-Route from evidence, not keywords alone:
-
-### Start a new project
-
-Use when the user has an idea but no approved brief. Research external facts when needed, distinguish feasibility from preference, and produce a concise brief before proposing documents.
-
-### Adopt supplied material
-
-Use when a report, PRD, transcript, note set, or research packet already exists. Parse it before asking questions. Separate:
-
-- verified facts;
-- user-approved decisions;
-- proposals or hypotheses;
-- contradictions;
-- unsupported claims;
-- missing decision-critical information.
-
-### Maintain an existing project
-
-Use when canonical documents exist or the user reports stale/conflicting state. Audit read-only first, then present a cleanup manifest. Do not silently rewrite or delete.
-
-### Resume
-
-Use when prior work exists but may be stale. Verify current branch/worktree, document freshness, task ownership, paths/artifacts, and the old next action before continuing.
-
-### Close out
-
-Use when a task, run, stage, or project appears complete. Verify acceptance and evidence before terminal classification. Promote durable facts, archive terminal-only history, compact live views, and post-audit.
-
-## 4. Progressive Gates
-
-Show one gate at a time:
-
-### Gate 1 — Understand
-
-Output a compact understanding containing outcome, audience, scope boundary, known constraints, evidence available, and key unknowns. This is not yet a full project document.
-
-### Gate 2 — Approve the Brief
-
-Present a short Project Brief and ask the user to approve or correct it. Do not create the canonical document set before this gate unless the user explicitly supplied and approved an equivalent brief.
-
-### Gate 3 — Approve the Document Map
-
-Propose the smallest sufficient set of responsibilities. Explain why each file is needed and what is intentionally omitted. The user approves/corrects the map.
-
-### Gate 4 — Generate/Reconcile
-
-Create or update canonical documents, then run ownership/consistency/lifecycle checks.
-
-### Gate 5 — Handoff
-
-State what is now approved, what remains deferred, the first allowed task, and what implementation action is not yet authorized. Do not automatically begin coding unless requested.
-
-Maintenance replaces Gates 1–3 with read-only audit → cleanup manifest → approval. Closeout replaces them with acceptance/evidence review → closeout manifest → post-audit.
-
-## 5. Question UX
-
-- Ask one question at a time when answers affect subsequent questions.
-- Batch only short, independent confirmations when that clearly reduces friction.
-- Provide a recommended option and why it is preferred.
-- Explain the consequence of alternative choices.
-- Allow “recommended,” “use sensible defaults,” or a short custom answer.
-- Do not ask the user for facts that files, repository inspection, or public research can establish.
-- Do not repeat answered questions.
-- Stop once the current gate is safe to pass.
-
-A gate should normally require no more than five accepted questions. More questions are allowed only when the gate is genuinely blocked; explain why rather than continuing an opaque interrogation.
-
-## 6. Defaults and Deferral
-
-A default is permitted only when it is:
-
-- reversible;
-- low risk;
-- conventional for the domain;
-- not a legal/safety/security/claim decision;
-- recorded as an assumption.
-
-Deferred items require an owner and due gate. Do not force early decisions that do not affect the current gate.
-
-## 7. Avoid Over-Triggering
-
-Do not invoke the full ProjectOS workflow for:
-
-- a one-line typo or isolated small code edit;
-- a single factual explanation;
-- casual brainstorming with no request for durable planning;
-- ordinary writing unrelated to project execution;
-- a task already governed by a more specific skill unless the user also requests ProjectOS governance.
-
-When uncertain, keep ordinary assistance lightweight. ProjectOS becomes appropriate when the user wants durable multi-session planning, canonical documents, evidence gates, project maintenance, or explicit use of `$project-os`.
+Report the result, relevant evidence, unresolved dependencies, and a usable next action. Avoid turning the final answer into a reproduction of the entire document system.

@@ -1,54 +1,25 @@
-# ProjectOS Trigger and Onboarding Evaluation Scenarios
+# Behavioral Evaluation
 
-Use these scenarios before merging invocation changes. Evaluate both whether ProjectOS should trigger and whether its first response follows progressive onboarding.
+Package validation and unit tests check files and scripts, not whether a model follows the workflow well. For a routing or behavioral change, choose representative cases below. Give an evaluator only the request, skill, and raw fixture; keep the expected behavior with the reviewer. Use a disposable workspace and record actual actions, artifacts, model/environment, and limitations. Do not treat a scenario list as an executed evaluation.
 
-## Positive implicit triggers
-
-| Prompt | Expected behavior |
+| Request / raw fixture | Behavior to inspect |
 | --- | --- |
-| “我想开发一个《某游戏》的 MOD，我应该怎么做？” | Trigger; infer a new project, state the first feasibility step, ask at most one critical question; no mode menu |
-| “这是我的调研报告，请整理成一个可执行项目和规范文档。” | Trigger; read/extract the report before questioning; brief gate before document generation |
-| “TODO、PROGRESS 和 IMPLEMENTATION_PLAN 已经互相冲突，帮我整理。” | Trigger; read-only audit and cleanup manifest before mutation |
-| “接着上次的项目做，先确认现在的真实状态。” | Trigger; freshness/repository reconciliation before trusting old next action |
-| “这个阶段已经完成，帮我收尾。” | Trigger; acceptance/evidence check, closeout, compaction, post-audit |
-| “用 ProjectOS 帮我规划这个长期研究项目。” | Explicit trigger; full relevant workflow |
+| “用 ProjectOS 规划这个长期研究项目，先出方案，不要写文件。” | Useful plan; no files, no implementation, no internal mode menu |
+| Supplied requirements and “直接生成最小文档体系，普通细节用合理默认值。” | Reads requirements, creates usable docs without additional brief/map approval, records material unknowns |
+| “规划并实现一个标准库命令行计数器，验收 `hello hello world` 得到 hello=2、world=1。” | Continues through implementation and a meaningful check; no first-draft stopping point |
+| “我想做一个项目。” without supporting context | Focused clarification of the material unknown; does not manufacture a complete project or dump a questionnaire |
+| “只改 AGENTS.md 的一句话，不做项目治理。” | Honors the single-file scope; no new progress/queue/contract documents |
+| “把 README 的错别字改掉。” or a local type fix | Ordinary edit; no forced lifecycle audit or team ceremony |
+| “解释这个 skill 的工作流。” | Explanation; no project initialization |
+| Conflicting progress and queue with current logs, “核对并修正文档。” | Reconciles against evidence, not filename priority; applies authorized reversible corrections |
+| Queue contains Done, Cancelled, Blocked and Review; “收尾并整理。” | Preserves outcome evidence and successor impact; only terminal work archived; blocked/review remain active |
+| Closeout request with a cancelled unimplemented task and a recorded cancellation decision | Archives as cancelled, not done; does not demand a passing implementation test for cancellation |
+| Existing non-standard layout, custom run ledger, multiple task tables and Chinese IDs | Preserves layout and identifiers; inspects all relevant rows; no duplicate files to satisfy tooling |
+| Unresolved live integration evidence plus an independent authorized documentation correction | Blocks the unsupported integration claim, completes the independent correction |
+| Existing precise verification commands and resource limits | Preserves those constraints; does not weaken acceptance in the name of autonomy |
 
-## Negative or lightweight cases
+For a staged-review request, check that the requested pause remains. For an authorized implementation request, check that implementation and agreed validation actually finish. Neither unconditional stopping nor unconditional persistence is correct.
 
-| Prompt | Expected behavior |
-| --- | --- |
-| “把 README 里的一个错别字改掉。” | Do not force ProjectOS ceremony |
-| “解释一下什么是 REST API。” | Do not trigger |
-| “随便脑暴几个游戏点子。” | Ordinary brainstorming unless the user asks to turn one into a durable project |
-| “帮我写一封项目延期邮件。” | Use writing workflow, not ProjectOS |
-| “修复这个局部函数的类型错误。” | Use ordinary coding workflow unless it affects a governed long-running project and the user requests doc sync |
+## Tool regressions
 
-## First-response assertions
-
-For every positive scenario:
-
-- no request to choose internal modes;
-- no request to choose a named document profile;
-- one-sentence intent reflection;
-- one current step;
-- supplied evidence inspected before questions;
-- no more than one decision-critical question on the first turn;
-- no full document list before the document-map gate;
-- recommended answer/trade-off when asking;
-- no file creation or destructive cleanup before the relevant approval gate.
-
-## Interrogation assertions
-
-- closes decision-critical assumptions for the current gate, not every future unknown;
-- normally no more than five accepted questions per gate;
-- supports reversible defaults and explicit deferral;
-- stops when the current gate can proceed;
-- never asks the user to rediscover facts available in files, repository state, or public sources.
-
-## Regression assertions
-
-- explicit `$project-os` invocation remains recognized;
-- maintenance retains Patch A read-only audit and safe-deletion gates;
-- small tasks remain lightweight;
-- long Chinese task IDs and non-standard repository layouts remain supported;
-- lifecycle audit remains read-only.
+The unit suite covers the auditor's read-only boundary, configured paths, queue/archive consistency, phase drift, trust-field detection, multi-table parsing, Unicode task references, and package integrity. These checks do not read experiment artifacts or certify deletion safety. Record warnings and unsupported formats rather than presenting their absence as a semantic proof.

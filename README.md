@@ -1,256 +1,112 @@
 # ProjectOS
 
-ProjectOS is an Agent Skill for turning non-trivial, long-running AI-assisted projects into a maintainable documentation and lifecycle system. It keeps current state, active work, roadmap, run evidence, stable contracts, diagnostics, and historical records separated so that old or conflicting information does not silently steer future work.
+ProjectOS is an Agent Skill for planning long-running projects and maintaining trustworthy project state across sessions. It separates live work from historical evidence and gives every fact one canonical owner.
 
 [中文说明](README.zh-CN.md)
 
-## What Problem It Solves
+## Use it
 
-Long-running AI projects often accumulate several partially overlapping documents:
-
-- a `TODO.md` that mixes active, completed, blocked, and abandoned tasks;
-- a `PROGRESS.md` that grows into a chronological diary instead of a current-state snapshot;
-- an `IMPLEMENTATION_PLAN.md` that mixes roadmap decisions with daily commands and stale plans;
-- run records, diagnostics, team notes, and stable contracts that disagree or age without a clear cleanup rule.
-
-ProjectOS addresses this with two complementary controls:
-
-1. **Canonical ownership** — every project fact has exactly one authoritative owner.
-2. **Lifecycle management** — every fact has a defined way to enter, change, become stale, be superseded, close out, archive, or remain historical.
-
-## Core Guarantees
-
-- **One fact, one canonical owner.** Other documents may link or summarize, but do not duplicate complete live state, task queues, run history, contracts, or diagnostics.
-- **Live views are not logs.** `PROGRESS.md`, `TODO.md`, and the current roadmap view are compacted as reality changes.
-- **Evidence before completion.** Writing code or reaching a terminal process state does not make a task complete unless its acceptance gate and evidence pass.
-- **Promote before removing.** Durable facts move to their canonical owner before an obsolete copy is archived or deleted.
-- **Audit before cleanup.** Existing projects receive a read-only inventory and lifecycle audit before mutation.
-- **Age is not deletion evidence.** Stale information must be verified and classified; it is not automatically wrong or disposable.
-- **No hidden mode burden.** First-time users describe the project in ordinary language; ProjectOS infers the internal workflow.
-
-## Quick Start
-
-After installing the skill in a compatible Agent Skills client, you may start with ordinary language:
+After installation, describe the result you need:
 
 ```text
-I want to build a gameplay mod for <game>. How should I start?
+$project-os Turn this research report into a usable project plan and create the minimum documents. Use reasonable defaults for routine details.
 ```
 
 ```text
-Here is my research report. Turn it into an executable project with a maintainable documentation system.
+$project-os Plan and implement this feature, then run the agreed checks.
 ```
 
 ```text
-TODO, PROGRESS, and IMPLEMENTATION_PLAN now conflict with each other. Audit and organize them safely.
+$project-os Reconcile the conflicting TODO, progress and roadmap against the current evidence.
 ```
 
 ```text
-Resume this project, but verify the real current state before continuing.
+$project-os Plan this project only. Show the proposal before writing any files.
 ```
 
-```text
-This stage is complete. Close it out, archive terminal work, and compact the live documents.
-```
+Explicit invocation is supported; implicit discovery is enabled where the client supports it. Mentioning a filename or making an ordinary small edit does not by itself call for project governance. ProjectOS does not switch the client's planning mode.
 
-Explicit invocation is the reliable fallback:
+## What to expect
 
-```text
-$project-os I want to build a mod for <game>. Guide me from requirements clarification.
-```
+ProjectOS reads relevant supplied material, identifies scope and acceptance, then completes the authorized work. A brief and document map can be useful outputs, but do not introduce extra approval stops. Staged review still applies when requested. Questions are limited to missing decisions that matter now; independent work continues while a decision is pending.
 
-ProjectOS does not ask a first-time user to select internal modes such as `Explore`, `Create`, `Maintain`, `Resume`, or `Closeout`. Those routes remain internal implementation details.
+Planning-only requests end with a usable plan. Requests including implementation continue through implementation and appropriate verification. Existing user instructions, project contracts and resource limits remain authoritative.
 
-## First-Time User Experience
+Only task-relevant references are loaded. The skill does not prescribe a question count, team size, resident reviewer or full-project reading list.
 
-The first ProjectOS response should normally do only four things:
+## Document model
 
-1. restate the understood intent in one sentence;
-2. explain the immediate next step in plain language;
-3. inspect supplied files, repository state, or verifiable public evidence before asking questions;
-4. ask at most one decision-critical question when the next step truly depends on it.
+Use the smallest useful set and preserve existing paths. These are default responsibilities, not mandatory files:
 
-It should not begin by showing the entire document set, asking dozens of questions, forcing a profile choice, or starting implementation without authorization.
-
-## Guided Planning Workflow
-
-For a new idea, ProjectOS progresses through approval gates:
-
-```text
-Understand available evidence
-→ research feasibility when needed
-→ close decision-critical assumptions for the current gate
-→ present a concise Project Brief
-→ user approves or corrects the brief
-→ present the smallest sufficient document map
-→ user approves or corrects the map
-→ create or reconcile canonical documents
-→ run consistency and lifecycle checks
-→ stop at implementation handoff unless implementation was requested
-```
-
-The goal is not to eliminate every future unknown. The goal is to leave **no unresolved decision-critical assumption before the gate that depends on it**.
-
-Questions are normally asked one at a time, limited to the current gate, and stopped as soon as that gate can proceed safely. Reversible low-risk defaults may be recorded explicitly; non-blocking decisions may be deferred with an owner and due gate.
-
-## Canonical Document Model
-
-ProjectOS creates only the responsibilities a project actually needs. It proposes the smallest sufficient document map before creating files.
-
-| Document | Canonical responsibility | Must not become |
-| --- | --- | --- |
-| `AGENTS.md` or `CLAUDE.md` | Agent entrypoint, reading order, conflict priority, operating rules | Project encyclopedia or live-status copy |
-| `PROGRESS.md` | Current phase, blocker, trusted next action, active artifacts, evidence boundary | Diary, complete run log, or full task queue |
-| `TODO.md` | Active task queue, owner, dependencies, acceptance, evidence state | Completed-task history or roadmap |
-| `doc/IMPLEMENTATION_PLAN.md` | Roadmap, phase meaning, stage gates, accepted transitions, fallback | Daily command list or detailed run ledger |
-| `doc/RUN_REGISTRY.md` | Factual run/root/parser/result ledger and trust classification | Long diagnosis or current next action |
-| `doc/diagnostics/*.md` | Long failure analysis, reviewer accounting, process or evidence diagnosis | Alternate live-state file |
-| `doc/PRD.md` | Product/research goal, scope, claims, success boundaries | Current blocker or task list |
-| `doc/FRONTEND_GUIDELINES.md` | Interface, mathematical, result-presentation, or user-facing behavior contract | Progress history |
-| `doc/BACKEND_STRUCTURE.md` | Schema, runtime, evidence, parser, accounting, and module contracts | Run history or active queue |
-| `doc/APP_FLOW.md` | Canonical operating sequence and component/data flow | Current status report |
-| `doc/TEAM.md` | Stable multi-agent roles, concurrency, permissions, and handoffs | Running team log or current assignee list |
-| `lessons.md` | Real mistakes, causes, corrections, and prevention rules | General rule encyclopedia |
-| `doc/archive/` | Terminal-only task or phase history | Shadow active queue |
-
-Smaller projects may combine responsibilities, but each fact must still have one owner.
-
-## Lifecycle Model
-
-ProjectOS classifies suspect information before editing it:
-
-| State | Meaning |
+| Responsibility | Default owner |
 | --- | --- |
-| `Current` | Verified for the present gate |
-| `Unverified` | May be valid, but freshness or evidence is insufficient |
-| `Stale` | Its freshness rule expired or its references no longer resolve |
-| `Superseded` | Replaced by a newer accepted fact or plan |
-| `Invalidated` | Known to be incorrect and forbidden as current guidance |
-| `Terminal` | Completed, cancelled, rejected, or otherwise no longer active |
-| `Historical` | Retained for evidence, rationale, audit, or reproducibility |
+| Local constraints and document routing | `AGENTS.md` |
+| Current phase, blocker, next action | `PROGRESS.md` |
+| Active tasks and acceptance | `TODO.md` |
+| Roadmap and phase meaning | `doc/IMPLEMENTATION_PLAN.md` |
+| Runs, artifacts and trust levels | `doc/RUN_REGISTRY.md` |
+| Product/research and domain contracts | `doc/PRD.md`, domain-specific contract files |
+| Durable failure reasoning | `doc/diagnostics/` |
+| Collaboration rules, if needed | `doc/TEAM.md` |
+| Actual mistakes and applicable prevention | `lessons.md` |
+| Terminal outcomes | `doc/archive/` |
 
-Every canonical document should state its responsibility, reconciliation date, freshness rule, and archive rule. Relevant documents add more specific metadata such as plan version, contract version, evidence cutoff, diagnostic status, or lesson-rule status.
+Small projects may combine responsibilities in clearly owned sections. Canonical ownership identifies where to update a fact; it is not proof that an old document is true. Resolve disagreements against current evidence.
 
-## Task Closeout
+## Lifecycle and cleanup
 
-A task becomes terminal only after its acceptance gate and evidence are verified. Closeout then follows this order:
+Live views stay compact. Run evidence preserves failures and trust transitions. Proposed, superseded, invalidated and historical information remains distinct from current accepted state.
 
-```text
-Verify acceptance and evidence
-→ record final classification and outcome
-→ promote durable facts to their canonical owners
-→ update dependent and successor tasks
-→ append the terminal record to the task archive
-→ remove it from the active TODO queue
-→ recalculate the trusted next action in PROGRESS
-→ run the post-change audit
-```
+Closeout preserves the outcome and updates dependencies before removing a terminal task from the live queue. Completed work needs acceptance evidence. Cancelled, rejected or superseded work needs its decision and successor impact. Blocked and review work remains active.
 
-A task must not be archived while it is blocked, under review, missing acceptance evidence, required by an unresolved gate, or ambiguous in final status.
-
-## Safe Cleanup
-
-Existing projects use this reconciliation sequence:
-
-```text
-Protect worktree and recoverability
-→ Inventory documents and references
-→ Detect conflicts, stale state, duplicates, and lifecycle leaks
-→ Classify each suspect item
-→ Present a cleanup manifest
-→ Promote durable facts
-→ Apply approved actions
-→ Run a post-cleanup audit
-```
-
-The cleanup manifest uses explicit actions:
-
-```text
-Keep | Verify | Update | Promote | Archive | Invalidate | Delete
-```
-
-Deletion is permitted only when the item is inactive, its durable facts and evidence are preserved, no active dependency needs it, references are repaired, retention rules allow removal, the operation is recoverable or explicitly approved, and the post-cleanup audit passes.
+Before cleanup, inspect affected state and recoverability; promote durable facts before removing an obsolete copy. Deletion additionally requires no active dependency, retained evidence, applicable retention rules, and sufficient authorization. Age or a clean audit alone never establishes deletion safety. See [lifecycle protocol](references/lifecycle-protocol.md).
 
 ## Installation
 
-Clone the repository into a directory named `project-os` so the folder matches the skill name:
+Clone into the client's skills location with the skill's folder name:
 
 ```bash
 git clone https://github.com/SII-penguins/projectOS.git project-os
-cd project-os
 ```
 
-Then register or copy the `project-os/` folder into the skills location used by your Agent Skills-compatible client.
+For Codex, place the folder under your configured skills directory, normally `$CODEX_HOME/skills/project-os`. Preserve any existing installation changes when updating.
 
-The skill supports implicit invocation where the client permits it. Use `$project-os` when you need deterministic explicit invocation.
+## Tooling
 
-## Validation and Tooling
-
-Validate the skill package:
+Python 3.10 or newer; standard library only.
 
 ```bash
 python scripts/validate_skill.py .
-```
-
-Run the regression suite:
-
-```bash
 python -m unittest discover -s tests -v
-```
-
-Run a read-only lifecycle audit against an existing project:
-
-```bash
 python scripts/audit_project_docs.py /path/to/project
 ```
 
-For a non-standard repository layout, add a `projectos.audit.json` file that maps canonical documents and archive paths instead of duplicating files merely to satisfy the auditor.
+The package validator checks metadata, resources and Python syntax. Unit tests check script behavior. Neither proves a model will follow a workflow; [behavioral scenarios](references/evaluation-scenarios.md) describe separate evaluations.
 
-Example:
+The lifecycle auditor is read-only with respect to the project. It checks supported Markdown structure, task tables, queue/archive consistency, task references, phase drift and trust-column presence. It does not inspect experiment artifact contents or certify completion/deletion. A wording-only edit does not need a full audit.
+
+For an existing layout, use `projectos.audit.json`:
 
 ```json
 {
   "documents": {
-    "entrypoint": "00_READ_THIS_FIRST/AGENTS.md",
-    "progress": "00_READ_THIS_FIRST/PROGRESS.md",
-    "todo": "02_canonical_docs/TODO.md",
-    "plan": "02_canonical_docs/IMPLEMENTATION_PLAN.md",
-    "run_registry": "02_canonical_docs/RUN_REGISTRY.md"
+    "entrypoint": "00/AGENTS.md",
+    "progress": "00/STATE.md",
+    "todo": "02/WORK.md",
+    "plan": "02/PLAN.md",
+    "run_registry": "02/RUNS.md"
   },
-  "task_archive_globs": ["02_canonical_docs/archive/tasks/**/*.md"],
+  "task_archive_globs": ["02/archive/**/*.md"],
   "thresholds": {"max_progress_lines": 250}
 }
 ```
 
-The audit script is heuristic and read-only. Its findings trigger verification; they do not authorize automatic deletion or terminal classification.
+Configured inputs must exist and remain within the project. Unmapped optional default files may be absent; `null` disables an optional role. `run` remains a legacy alias for `run_registry`. Status aliases cannot make active work terminal. See the lifecycle reference for other options.
 
-## Repository Layout
+JSON reports use `--format json`. Optional `--output /path/outside/project/report.json` must be outside the audited project. Exit codes: 0 for no findings at the chosen threshold, 1 for findings meeting `--fail-on`, 2 for invalid inputs or execution errors. Warnings still need interpretation; a zero exit code is not semantic certification.
 
-```text
-SKILL.md                              Core trigger and operating workflow
-agents/openai.yaml                    Client-facing metadata and default prompt
-references/onboarding-and-invocation.md
-                                      First-time routing and progressive guidance
-references/lifecycle-protocol.md      Freshness, closeout, archival, and cleanup rules
-references/document-blueprints.md     Canonical document responsibilities
-references/interrogation-checklist.md Decision-critical question coverage
-references/hard-rules.md              Conflict priority and forbidden shortcuts
-references/team-blueprint.md          Multi-agent collaboration protocol
-references/evaluation-scenarios.md    Positive and negative trigger scenarios
-scripts/audit_project_docs.py         Read-only project documentation audit
-scripts/validate_skill.py             Skill package validator
-tests/                                Lifecycle and invocation regression tests
-README.md                             English README
-README.zh-CN.md                       Chinese README
-```
+## Design and evaluation
 
-## When Not to Use ProjectOS
+This revision applies the [GPT-6 Astra model guidance](https://developers.openai.com/api/docs/guides/latest-model) and Eric Provencher's [Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra). See [review findings and validation](ASTRA_REVIEW.md).
 
-Do not force the full ProjectOS workflow for:
-
-- a one-line typo or isolated small code edit;
-- a single factual explanation;
-- casual brainstorming with no request for durable planning;
-- ordinary writing unrelated to project execution;
-- a task already governed by a more specific skill unless ProjectOS governance is also requested.
-
-ProjectOS is most useful when work spans multiple sessions, agents, experiments, stages, evidence gates, or evolving documents—and when stale information would materially increase project risk.
+The core ownership and evidence rules remain model-independent. The revision removes unnecessary process constraints rather than hardcoding a model or requiring an API migration.

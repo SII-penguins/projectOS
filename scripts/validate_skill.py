@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-REFERENCE_RE = re.compile(r"`((?:references|scripts|agents)/[A-Za-z0-9_.\-/]+)`")
+REFERENCE_RE = re.compile(r"`((?:references|scripts|agents)/[A-Za-z0-9_.\-/]+)`|\]\(((?:references|scripts|agents)/[^\s)#]+)(?:#[^)]*)?\)")
 
 
 @dataclass(frozen=True)
@@ -77,8 +77,6 @@ def validate(root: Path) -> list[Finding]:
         findings.append(Finding("ERROR", "Frontmatter is missing required field: description"))
     elif len(description) > 1024:
         findings.append(Finding("ERROR", f"Description is {len(description)} characters; maximum is 1024"))
-    elif len(description) < 80:
-        findings.append(Finding("WARN", "Description may be too short for reliable invocation"))
 
     line_count = len(text.splitlines())
     if line_count > 500:
@@ -86,20 +84,16 @@ def validate(root: Path) -> list[Finding]:
     elif line_count > 350:
         findings.append(Finding("WARN", f"SKILL.md has {line_count} lines; use more progressive disclosure"))
 
-    for invariant in (
-        "One fact, one canonical owner",
-        "Audit before cleanup",
-        "Promote before removing",
-        "safe-deletion",
-        "The user never needs to learn ProjectOS modes",
-        "ask at most one decision-critical question",
-    ):
-        if invariant.lower() not in body.lower():
-            findings.append(Finding("ERROR", f"Missing ProjectOS invariant: {invariant}"))
-
-    for relative in sorted(set(REFERENCE_RE.findall(text))):
-        if not (root / relative).exists():
-            findings.append(Finding("ERROR", f"Referenced path does not exist: {relative}"))
+    # Check resources, not prose slogans. Model behavior needs independent evaluation.
+    instruction_files = [skill_path, *(root / "references").glob("*.md")]
+    for source in instruction_files:
+        for match in REFERENCE_RE.finditer(source.read_text(encoding="utf-8")):
+            relative = match[1] or match[2]
+            target = (root / relative).resolve()
+            if not target.is_relative_to(root.resolve()):
+                findings.append(Finding("ERROR", f"Reference escapes skill: {relative}"))
+            elif not target.is_file():
+                findings.append(Finding("ERROR", f"Referenced path does not exist: {relative}"))
 
     required = {
         "references/onboarding-and-invocation.md",
@@ -119,25 +113,20 @@ def validate(root: Path) -> list[Finding]:
     openai_path = root / "agents" / "openai.yaml"
     if openai_path.is_file():
         openai_text = openai_path.read_text(encoding="utf-8")
-        if "allow_implicit_invocation: true" not in openai_text:
-            findings.append(Finding("WARN", "OpenAI config does not enable implicit invocation"))
-        if "$project-os" not in openai_text and "ProjectOS" not in openai_text:
-            findings.append(Finding("WARN", "OpenAI default prompt does not name ProjectOS"))
-        if "choose Explore" in openai_text or "select an internal mode" in openai_text:
-            findings.append(Finding("ERROR", "OpenAI default prompt exposes internal mode selection"))
-        if "do not make me choose internal modes" not in openai_text:
-            findings.append(Finding("WARN", "OpenAI default prompt does not protect first-time users from mode selection"))
+        prompt = re.search(r"^\s*default_prompt:\s*(.+)$", openai_text, re.M)
+        if not prompt or f"${name}" not in parse_scalar(prompt[1]):
+            findings.append(Finding("ERROR", "OpenAI default prompt must explicitly name the skill"))
+        policy = re.search(r"^\s*allow_implicit_invocation:\s*(\S+)", openai_text, re.M)
+        if policy and policy[1] not in {"true", "false"}:
+            findings.append(Finding("ERROR", "allow_implicit_invocation must be a boolean"))
     else:
         findings.append(Finding("WARN", "agents/openai.yaml is missing"))
 
-    try:
-        compile(
-            (root / "scripts" / "audit_project_docs.py").read_text(encoding="utf-8"),
-            "audit_project_docs.py",
-            "exec",
-        )
-    except SyntaxError as exc:
-        findings.append(Finding("ERROR", f"Audit script has a syntax error: {exc}"))
+    for script in (root / "scripts").glob("*.py"):
+        try:
+            compile(script.read_text(encoding="utf-8"), str(script), "exec")
+        except SyntaxError as exc:
+            findings.append(Finding("ERROR", f"Script has a syntax error: {exc}"))
 
     return findings
 

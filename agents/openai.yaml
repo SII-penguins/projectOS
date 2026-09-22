@@ -1,7 +1,7 @@
 interface:
   display_name: "ProjectOS"
   short_description: "Start, organize, resume, or close complex projects"
-  default_prompt: "Use $project-os. I will describe a project idea or share an existing project; infer the right workflow, guide me one step at a time, and do not make me choose internal modes."
+  default_prompt: "Use $project-os to plan or reconcile this project and complete the work within my requested scope."
 
 policy:
   allow_implicit_invocation: true
