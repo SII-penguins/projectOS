@@ -4,6 +4,8 @@ Adapt only the relevant examples. Replace placeholders from inspected facts, use
 
 For a small project these responsibilities can be sections of one plan/state file. The separated examples show the auditor's supported syntax.
 
+To audit a combined file, map each role to its heading using `references/audit-format.md`. Keep active and terminal rows in different sections; do not map both roles to the entire file. Retain source/decision references when adopting a contract or correcting evidence, as described in `references/lifecycle-transitions.md`.
+
 ## Agent routing
 
 ~~~markdown
@@ -18,6 +20,10 @@ For resumed project work, use PROGRESS.md for live state and TODO.md for the que
 For roadmap decisions, use doc/IMPLEMENTATION_PLAN.md.
 Read domain contracts only when the task touches their interfaces.
 Keep only project-specific commands and constraints here.
+
+When a requested change alters a task outcome, blocker/next action, accepted interface
+or evidence status, update the corresponding existing owner and affected references.
+Leave unchanged facts alone; an isolated edit does not require new project documents.
 ~~~
 
 ## Live state
@@ -32,6 +38,7 @@ Freshness Rule: Reconcile when phase, blocker, artifacts or next action changes.
 Archive Rule: Promote durable outcomes to the roadmap or ledger before compacting.
 
 Current Phase: S1
+Next Task: T-001
 Next Action: T-001 — <next authorized action>
 Blocker: <observed blocker or none>
 Evidence boundary: <what is verified and what is not>
@@ -83,6 +90,8 @@ Archive Rule: Keep evidence and successor links accessible.
 ~~~
 
 Add rows only for actual terminal work. A Done row needs acceptance evidence; a Cancelled row needs its cancellation decision and successor impact. A blocked task does not belong here.
+
+If `T-001` later needs corrective work, retain its archived outcome and use a new active attempt such as `T-001-R2`, with `Reopens: T-001` or a related-history link. Do not treat that history link as a prerequisite unless successful prior work is actually required.
 
 ## Optional run ledger
 

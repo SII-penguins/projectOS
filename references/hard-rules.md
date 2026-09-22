@@ -33,6 +33,7 @@ Link summaries to their owners. A small project may put distinct responsibilitie
 - Active work needs an owner, dependencies, next action, and acceptance criteria. Record actual scope restrictions; do not invent a forbidden-actions list for every task.
 - If evidence blocks a claim, suspend that claim and dependent work. Continue independent authorized tasks. Use a diagnostic when the reasoning needs a durable explanation, not for every typo or corrected path.
 - Completion, cancellation, rejection, and supersession have different evidence. Cancellation needs its decision and successor impact; it does not require pretending an unfinished implementation passed acceptance.
+- Evidence can lose validity after closeout. Preserve the historical assertion and its correction, then reconcile affected claims, gates and tasks through `references/lifecycle-transitions.md`; do not silently keep a withdrawn result as current evidence.
 
 ## Research contracts
 

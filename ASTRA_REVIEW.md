@@ -50,7 +50,7 @@ The output boundary now rejects project-internal reports and outside hard links 
 
 Compatibility changes: explicit missing/invalid inputs now return exit code 2, unsupported malformed tables fail visibly, and output reports must be outside the audited project. These changes prevent silent partial auditing and input overwrites. Existing client entrypoint shims can be mapped explicitly rather than being declared invalid merely for coexisting.
 
-## Validation
+## First revision validation (7038616)
 
 On Windows with bundled Python 3.12:
 
@@ -68,7 +68,7 @@ python scripts/validate_skill.py .
 git diff --check
 ```
 
-## Independent behavior trials
+## First revision independent behavior trials
 
 Fresh Astra subagents used the candidate skill in isolated local directories, without the expected result or proposed fixes in their prompts. The parent inspected the generated artifacts.
 
@@ -85,3 +85,33 @@ These are observed local smoke trials, not a statistically controlled benchmark.
 The auditor understands a bounded Markdown/config schema. It does not validate experiment artifact contents, retention obligations, every prose reference, or semantic acceptance. A clean report therefore cannot authorize deletion or upgrade smoke evidence to formal results.
 
 Package validation similarly cannot prove routing quality. Preserve project-specific constraints and use realistic behavior trials when changing the workflow; do not replace them with more exact-phrase assertions or a universal instruction checklist.
+
+## Second pass: lifecycle continuity
+
+The follow-up review examined the whole lifecycle rather than only shorter prompting. The entrypoint remains 42 lines; advanced transitions and the audit schema are loaded through lifecycle references when relevant.
+
+| Gap | Change |
+| --- | --- |
+| Creation, adoption and retirement were less explicit than cleanup | Define provenance, draft/adopted boundaries, successor ownership, effective versions and conditional writeback in project entrypoints |
+| Confidence, document lifecycle and task execution were mixed | Explain their independence; archived evidence may remain valid, while a completed task can require a later correction |
+| Evidence withdrawal did not specify downstream reconciliation | Preserve the original observation and correction; revisit affected claims, stage gates and dependent work without automatically rerunning experiments |
+| Reopening and interrupted closeout could erase or duplicate history | Use distinct attempt IDs, preserve old outcomes, compare existing archive rows, finish only missing changes and recover selectively |
+| Small combined documents were recommended but not auditable by role | Add path/section mappings, inherited metadata, stable physical line numbers and one cached source revision per file |
+| Clean output did not show actual coverage | Reports now list inspected roles/sections/checks and row counts; empty scans are errors and excluded semantics are explicit |
+| Dependency/readiness errors and ambiguous next actions were missed | Check missing prerequisites, cycles and readiness against unfinished/cancelled work; support explicit Next Task and warn on ambiguous prose |
+| Fresh top-level dates hid old tasks; terminal evidence could be blank | Check row freshness and empty fields, duplicate archive attempts, placeholder outcome evidence and noncurrent mapped owners |
+| Ordinary future coding could bypass lifecycle upkeep entirely | Generated project entrypoints conditionally write back changed facts; installing a skill does not imply a background watcher |
+
+These changes add 15 regression cases. The complete suite now has **42 passing tests**; the first 12 new cases included 11 failures against the previous implementation before repairs. Additional positive tests cover valid escaped pipes, section isolation, historical-size isolation and source-revision consistency. Existing custom layouts, implicit/explicit invocation and read-only protections remain covered.
+
+The first advanced recovery trial also exposed a behavioral failure: it correctly retracted bad evidence and repaired the interrupted closeout, but completed an unrelated Ready glossary task during a reconciliation-only request. The skill now explicitly separates queue readiness from execution authorization. This is a correction based on observed behavior, not a new blanket approval gate.
+
+Observed follow-up artifacts:
+
+| Trial | Outcome |
+| --- | --- |
+| Combined project document | Preserved the four PROJECT.md sections, archived only the completed welcome-note task, retained the blocked connection task, and created a section map. Audit coverage identified one live queue row and two historical rows with no findings. |
+| Recovery after evidence withdrawal, first attempt | Preserved the original result and historical acceptance, opened a corrective attempt and repaired the queue; failed the scope boundary by also completing the unrelated glossary task. |
+| Same recovery request in a fresh workspace after correction | Kept the glossary task Ready and unexecuted. Preserved one historical T-001 row, removed the interrupted duplicate, created blocked T-001-R2, redirected T-003 to it, and withdrew R-001's formal accuracy claim while retaining the original observation. |
+
+Advanced behavior trials use synthetic local project records. They do not demonstrate experimental validity or performance improvements. Cross-file snapshots are not transactional: coordinate writers and verify the relevant revision before a multi-file transition. The auditor caches repeated roles from the same file but does not replace version control or semantic review.

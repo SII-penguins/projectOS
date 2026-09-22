@@ -34,6 +34,8 @@ Planning-only requests end with a usable plan. Requests including implementation
 
 Only task-relevant references are loaded. The skill does not prescribe a question count, team size, resident reviewer or full-project reading list.
 
+For ongoing projects, the generated entrypoint includes conditional writeback: update existing owners when a change alters their facts. Installing ProjectOS does not start a background watcher or require a full lifecycle workflow for every coding task.
+
 ## Document model
 
 Use the smallest useful set and preserve existing paths. These are default responsibilities, not mandatory files:
@@ -61,6 +63,8 @@ Closeout preserves the outcome and updates dependencies before removing a termin
 
 Before cleanup, inspect affected state and recoverability; promote durable facts before removing an obsolete copy. Deletion additionally requires no active dependency, retained evidence, applicable retention rules, and sufficient authorization. Age or a clean audit alone never establishes deletion safety. See [lifecycle protocol](references/lifecycle-protocol.md).
 
+For creation/adoption, evidence correction, reopening, owner migration and interrupted cleanup, see [document and evidence transitions](references/lifecycle-transitions.md). Lifecycle and confidence are separate: an archived result can remain valid, while a once-accepted result can later require retraction. Reopening preserves its historical outcome and creates a distinct corrective attempt. Interrupted closeout resumes without duplicating archive rows.
+
 ## Installation
 
 Clone into the client's skills location with the skill's folder name:
@@ -85,6 +89,8 @@ The package validator checks metadata, resources and Python syntax. Unit tests c
 
 The lifecycle auditor is read-only with respect to the project. It checks supported Markdown structure, task tables, queue/archive consistency, task references, phase drift and trust-column presence. It does not inspect experiment artifact contents or certify completion/deletion. A wording-only edit does not need a full audit.
 
+Reports state which documents/sections and checks were actually covered. Empty scans are errors; absent optional roles mean some checks did not run. Dependency cycles, unresolved prerequisites, ambiguous next-task prose, duplicate archive attempts and task-level stale dates are surfaced for review.
+
 For an existing layout, use `projectos.audit.json`:
 
 ```json
@@ -102,6 +108,8 @@ For an existing layout, use `projectos.audit.json`:
 ```
 
 Configured inputs must exist and remain within the project. Unmapped optional default files may be absent; `null` disables an optional role. `run` remains a legacy alias for `run_registry`. Status aliases cannot make active work terminal. See the lifecycle reference for other options.
+
+A combined document can use mappings such as `"todo": {"path": "PROJECT.md", "section": "Active work"}` and `"archive": {"path": "PROJECT.md", "section": "History"}`. Missing or ambiguous headings fail visibly. See [auditor format and coverage](references/audit-format.md) for supported inputs, prerequisite semantics and limitations.
 
 JSON reports use `--format json`. Optional `--output /path/outside/project/report.json` must be outside the audited project. Exit codes: 0 for no findings at the chosen threshold, 1 for findings meeting `--fail-on`, 2 for invalid inputs or execution errors. Warnings still need interpretation; a zero exit code is not semantic certification.
 

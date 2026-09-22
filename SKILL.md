@@ -11,7 +11,7 @@ Keep project decisions, current state, work, and evidence usable across sessions
 
 Infer the requested outcome from the user's task and available evidence. Users do not need to select internal modes or document profiles. This skill does not switch the client's planning mode.
 
-User instructions and existing authorization take precedence over these workflow suggestions, within system, developer, and execution constraints. A brief or document map is a work product, not an extra approval checkpoint. Complete the authorized outcome: planning-only work ends with a usable plan; implementation requests continue through the requested implementation and relevant verification.
+User instructions and existing authorization take precedence over these workflow suggestions, within system, developer, and execution constraints. A brief or document map is a work product, not an extra approval checkpoint. Complete the authorized outcome: planning-only work ends with a usable plan; implementation requests continue through the requested implementation and relevant verification. Queue status is not execution authorization: reconciliation or closeout does not itself authorize completing unrelated Ready tasks.
 
 Resolve questions from supplied material first. Ask only for missing decisions that materially affect the work and cannot reasonably be inferred. Use routine reversible defaults, record material assumptions, and continue independent authorized work while a decision is pending. Never invent project state, evidence, or authorization.
 
@@ -20,7 +20,7 @@ Resolve questions from supplied material first. Ask only for missing decisions t
 - Start or plan a project, including supplied research: `references/onboarding-and-invocation.md`.
 - Resolve a specific planning uncertainty: relevant section of `references/interrogation-checklist.md`, a question bank rather than an interview script.
 - Create or refactor project documents: `references/document-blueprints.md` and relevant rules in `references/hard-rules.md`.
-- Resume, reconcile, archive, or close out project state: `references/lifecycle-protocol.md`.
+- Resume, reconcile, archive, or close out project state: `references/lifecycle-protocol.md`; it routes advanced transitions and audit formats when needed.
 - Design a team workflow when requested or already in use: `references/team-blueprint.md`.
 - Need a concrete document example: relevant part of `references/example-output-skeleton.md`.
 - Evaluate this skill: `references/evaluation-scenarios.md`.

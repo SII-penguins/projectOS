@@ -26,6 +26,10 @@ The requested result determines the stopping point. “Plan only” does not aut
 
 For maintenance, inspect affected documents and establish a recoverable change set. A cleanup manifest may be an internal working table or part of delivery for already authorized reversible changes. Prepare the independent work before requesting any genuinely missing authorization for a specific consequential action.
 
+Keep task status separate from execution authority. A request to reconcile or close out documents authorizes the necessary state/evidence corrections, not delivery of every Ready backlog item (including unrelated documentation tasks). Preserve those tasks. A request to resume implementation may authorize selecting the next applicable task; use the actual request and prior authorization, not readiness alone.
+
 Apply user corrections to the active task while preserving completed work. A side question need not discard the original objective. Keep material changes to scope, acceptance, and dependencies in their owner documents.
+
+For a project intended to continue across sessions, put conditional document routing and writeback in its existing agent entrypoint, following `references/document-blueprints.md`. Skill installation/invocation alone does not install a background watcher or guarantee every future coding turn reloads this skill.
 
 Report the result, relevant evidence, unresolved dependencies, and a usable next action. Avoid turning the final answer into a reproduction of the entire document system.

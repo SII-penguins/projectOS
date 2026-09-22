@@ -16,6 +16,8 @@ Use for the affected state when resuming, reconciling, cleaning, or closing out 
 
 Age, length, and a terminal status are not deletion evidence.
 
+These labels describe different dimensions, not a single mandatory state machine: document lifecycle, confidence in a fact, and task execution can differ. For creation/adoption, evidence withdrawal, reopening, owner migration or interrupted cleanup, use the relevant section of `references/lifecycle-transitions.md`.
+
 ## Metadata and freshness
 
 For separately maintained canonical documents, use this header or the project's established equivalent:
@@ -94,8 +96,6 @@ Map existing files instead of creating duplicate owners:
 }
 ```
 
-All configured inputs must stay within the project. Explicit mappings that do not exist are configuration errors; unmapped optional default files may be absent. `run_registry` is the documented name; `run` remains a legacy alias. Set an optional role to `null` to omit its automatic discovery. Status aliases extend defaults and cannot classify an active state as terminal.
+String mappings select entire files. For combined documents, map each role to a `{ "path": "PROJECT.md", "section": "Active work" }` object so active tasks and historical rows remain separate. `archive` can map a terminal-history section. See `references/audit-format.md` for the supported schema, dependency interpretation, coverage and output boundary.
 
-The auditor checks supported Markdown metadata/tables, all task tables outside code fences, queue/archive conflicts, task references, phase IDs and trust-column presence. It does not validate referenced experiment results or guarantee every prose statement is consistent. Review warnings and unsupported structures in context.
-
-Audits print to stdout by default. Optional `--output` reports must be outside the audited project so the auditor cannot overwrite an input or mutate the project it calls read-only.
+Inspect report coverage before interpreting a clean result: absent roles mean some checks did not run. The auditor does not validate experiment artifact contents, semantic acceptance or deletion authorization. Review unsupported structures directly.
