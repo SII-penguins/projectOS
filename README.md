@@ -87,6 +87,8 @@ python scripts/audit_project_docs.py /path/to/project
 
 The package validator checks metadata, resources and Python syntax. Unit tests check script behavior. Neither proves a model will follow a workflow; [behavioral scenarios](references/evaluation-scenarios.md) describe separate evaluations.
 
+Package metadata checks support ordinary plain/quoted strings and basic folded/literal description blocks. They reject ambiguous discovery keys, damaged UTF-8 and wrong explicit skill names, but are not a general YAML schema validator for arbitrary optional extensions. Use a YAML-aware client validator for richer metadata. ProjectOS runtime tooling still needs only the standard library.
+
 The lifecycle auditor is read-only with respect to the project. It checks supported Markdown structure, task tables, queue/archive consistency, task references, phase drift and trust-column presence. It does not inspect experiment artifact contents or certify completion/deletion. A wording-only edit does not need a full audit.
 
 Reports state which documents/sections and checks were actually covered. Empty scans are errors; absent optional roles mean some checks did not run. Dependency cycles, unresolved prerequisites, ambiguous next-task prose, duplicate archive attempts and task-level stale dates are surfaced for review.

@@ -115,3 +115,24 @@ Observed follow-up artifacts:
 | Same recovery request in a fresh workspace after correction | Kept the glossary task Ready and unexecuted. Preserved one historical T-001 row, removed the interrupted duplicate, created blocked T-001-R2, redirected T-003 to it, and withdrew R-001's formal accuracy claim while retaining the original observation. |
 
 Advanced behavior trials use synthetic local project records. They do not demonstrate experimental validity or performance improvements. Cross-file snapshots are not transactional: coordinate writers and verify the relevant revision before a multi-file transition. The auditor caches repeated roles from the same file but does not replace version control or semantic review.
+
+## Third pass: precision and package readiness
+
+The final refinement pass kept the 42-line entrypoint and focused on incorrect audit outcomes, metadata integrity and maintainability rather than adding workflow ceremonies.
+
+| Reproduced boundary | Correction |
+| --- | --- |
+| A nested section inherited earlier unrelated sections as its preamble | Inherit only field lines from the document header, independent of selected heading depth |
+| A literal heading such as C# lost its final hash | Distinguish literal heading text from spaced Markdown closing hashes |
+| A Markdown link's destination looked like another task dependency | Interpret task references from visible labels, not URL/path tokens |
+| A trust glossary masked missing classifications in actual run rows | Identify run tables separately and check each table/row, including missing/duplicate IDs and empty trust values |
+| Empty archive IDs and missing active stages escaped useful diagnostics | Report these conditions while accepting a completed roadmap with an empty queue |
+| Duplicate JSON keys, empty normalized status aliases, and explicit null entrypoints were ambiguous | Reject ambiguous config values and respect deliberate discovery disablement |
+| Invalid or duplicate discovery fields, truncated quotes, corrupt UTF-8, or a wrong skill-name prefix could pass or crash package checks | Return concrete package errors, parse basic description blocks, enforce name bounds and match explicit invocation exactly |
+| Report I/O failures did not follow the documented exit-code contract | Return exit 2 with a concise diagnostic; clarify CLI help and input failures |
+
+The suite now contains **61 passing tests**, including positive cases guarding against new false alarms. Both Python tools and the new tests were formatted for maintainability; text-file line endings are declared for portable checkouts. Formatting/YAML-aware validation dependencies stayed in isolated development directories and are not runtime dependencies of the skill.
+
+An independent read-only trial used a project with nested sections, a historical snapshot, a proposed stage and an unexecuted evaluation. The evaluator correctly reported RUN_TRUST_MISSING and NO_ACTIVE_STAGE, checked that the result artifact did not exist, and distinguished setup completion from evaluation readiness. It did not implement repairs or run an experiment. The parent compared all five project file hashes before/after and confirmed no input changes.
+
+The package validator deliberately implements the metadata subset used by this package, not arbitrary YAML extensions. A YAML-aware client validator remains appropriate for richer metadata. The observed tests and local trials support these specific behaviors; they are not a proof of correctness for every future project or model.
