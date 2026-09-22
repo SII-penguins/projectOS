@@ -4,6 +4,8 @@ ProjectOS is an Agent Skill for planning long-running projects and maintaining t
 
 [中文说明](README.zh-CN.md)
 
+The Astra/lifecycle revision is tracked in [PR #5](https://github.com/SII-penguins/projectOS/pull/5). Start with the [review summary](ASTRA_REVIEW.md#review-summary) for changes, validation and limitations; use the branch-specific [installation command](#installation) to try that revision.
+
 ## Use it
 
 After installation, describe the result you need:
@@ -67,13 +69,23 @@ For creation/adoption, evidence correction, reopening, owner migration and inter
 
 ## Installation
 
-Clone into the client's skills location with the skill's folder name:
+Run one of the following commands from the client's skills directory, using `project-os` as the destination folder name.
+
+Default branch:
 
 ```bash
 git clone https://github.com/SII-penguins/projectOS.git project-os
 ```
 
-For Codex, place the folder under your configured skills directory, normally `$CODEX_HOME/skills/project-os`. Preserve any existing installation changes when updating.
+The Astra/lifecycle review branch described in [PR #5](https://github.com/SII-penguins/projectOS/pull/5):
+
+```bash
+git clone --branch codex/astra-projectos-review --single-branch https://github.com/SII-penguins/projectOS.git project-os
+```
+
+Choose one command, not both. The review-branch command selects that revision explicitly; it does not imply the PR has been merged into the default branch.
+
+For Codex, place the folder under your configured skills directory, normally `$CODEX_HOME/skills/project-os`. If `project-os` already exists, inspect its changes before updating; do not replace an independently modified installation. Installation does not merge the PR or start background project maintenance.
 
 ## Tooling
 

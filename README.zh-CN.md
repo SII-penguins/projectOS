@@ -4,6 +4,8 @@ ProjectOS 是用于长期项目规划和状态维护的 Agent Skill。它让当�
 
 [English README](README.md)
 
+Astra／生命周期优化版本见 [PR #5](https://github.com/SII-penguins/projectOS/pull/5)。变更、验证结果和能力边界集中在[审查摘要](ASTRA_REVIEW.md#review-summary)；试用该版本请使用下方[安装说明](#安装)中的指定分支命令。
+
 ## 使用方式
 
 安装后直接描述需要完成的结果：
@@ -69,13 +71,23 @@ $project-os 先规划这个项目，只给方案，不要写文件。
 
 ## 安装
 
-将仓库放入客户端技能目录，并使用技能名称作为文件夹名：
+在客户端技能目录中选择下列一条命令执行，目标文件夹名使用 `project-os`。
+
+安装默认分支：
 
 ```bash
 git clone https://github.com/SII-penguins/projectOS.git project-os
 ```
 
-Codex 通常使用 `$CODEX_HOME/skills/project-os`。更新已有安装时，保留本地修改。
+安装 [PR #5](https://github.com/SII-penguins/projectOS/pull/5) 对应的 Astra／生命周期优化分支：
+
+```bash
+git clone --branch codex/astra-projectos-review --single-branch https://github.com/SII-penguins/projectOS.git project-os
+```
+
+两条命令二选一。指定分支命令明确选择优化版本，不表示 PR 已合并到默认分支。
+
+Codex 通常使用 `$CODEX_HOME/skills/project-os`。若目标目录已存在，先检查已有改动再更新，不要覆盖独立修改过的安装。安装 skill 不会合并 PR，也不会启动后台项目维护。
 
 ## 验证与审计
 

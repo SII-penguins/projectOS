@@ -1,5 +1,21 @@
 # ProjectOS Astra review — 2026-09-22
 
+## Review summary
+
+This review is delivered through [PR #5](https://github.com/SII-penguins/projectOS/pull/5), on `codex/astra-projectos-review`. Publication to that branch is separate from merging into `main` or updating an existing global skill installation. The installed copy's independent changes were preserved.
+
+| Pass | Implementation commit | Main outcome | Unit tests at that revision |
+| --- | --- | --- | --- |
+| Astra workflow review | [7038616](https://github.com/SII-penguins/projectOS/commit/7038616765d232a2d1eae4d3e1e736e78c056740) | Shorter task-based routing, no added approval gates, repaired audit boundaries | 27 passed |
+| Lifecycle continuity | [b47e864](https://github.com/SII-penguins/projectOS/commit/b47e86499b82d6a0218d504005742417b1020a98) | Evidence correction, reopening, interrupted closeout, combined documents and dependency checks | 42 passed |
+| Precision and package readiness | [c717705](https://github.com/SII-penguins/projectOS/commit/c717705847ae90fcde428744f3a09b44faa42da8) | Section isolation, run trust/identity checks, config and metadata validation | 61 passed |
+
+The final implementation baseline is `c717705`; subsequent delivery edits only organize these documents. Its packaged `project-os` directory passed validation with **0 errors and 0 warnings**, and Skill Creator's YAML-aware validator passed. Validating a checkout named `projectOS` instead reports an expected folder-name warning.
+
+Behavioral trials are recorded under their respective passes below. The third pass added a fresh read-only trial: it identified missing evidence without executing experiments or changing any of the five fixture files. Earlier trials were not all rerun on the final implementation. These are local synthetic checks, not a statistical benchmark or proof of live integration.
+
+Before adopting the tooling, note the intentional compatibility changes: invalid explicit inputs fail visibly, reports must be outside the audited project, and status aliases cannot make active work terminal. A clean structural audit still does not certify semantic acceptance, experiment artifacts or deletion safety.
+
 ## Sources and baseline
 
 The two requested primary sources were fetched and read in full before repository review:
