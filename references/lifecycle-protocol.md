@@ -1,195 +1,101 @@
-# ProjectOS Lifecycle Protocol
+# Lifecycle Protocol
 
-Use this protocol whenever an existing project is resumed, reconciled, cleaned, or closed out. It supplements canonical ownership: ownership says **where a fact belongs**; lifecycle says **when it enters, changes, leaves, or remains historical**.
+Use for the affected state when resuming, reconciling, cleaning, or closing out a project. Ownership says where a fact belongs; lifecycle says when it changes or becomes historical. Scale inspection to the request and preserve already authorized independent work.
 
-## 1. Information States
+## Information states
 
-Classify suspect information before editing it:
+| State | Meaning |
+| --- | --- |
+| Current | Verified for the present decision |
+| Unverified | May be valid; freshness or evidence is insufficient |
+| Stale | Refresh rule expired or references no longer resolve |
+| Superseded | Replaced by a newer accepted fact |
+| Invalidated | Known incorrect; not current guidance |
+| Terminal | Completed, cancelled, rejected, or superseded work with recorded outcome |
+| Historical | Retained evidence or rationale |
 
-- `Current`: verified for the present gate.
-- `Unverified`: may be valid, but freshness or evidence is insufficient.
-- `Stale`: its freshness rule expired or its references no longer resolve.
-- `Superseded`: replaced by a newer accepted fact.
-- `Invalidated`: known to be incorrect and forbidden as guidance.
-- `Terminal`: completed, cancelled, rejected, or otherwise no longer active.
-- `Historical`: retained for evidence, rationale, audit, or reproducibility.
+Age, length, and a terminal status are not deletion evidence.
 
-`Stale` does not mean `wrong`; `Terminal` does not mean `delete`. Age or file length alone never authorizes removal.
+These labels describe different dimensions, not a single mandatory state machine: document lifecycle, confidence in a fact, and task execution can differ. For creation/adoption, evidence withdrawal, reopening, owner migration or interrupted cleanup, use the relevant section of `references/lifecycle-transitions.md`.
 
-## 2. Required Metadata
+## Metadata and freshness
 
-Every canonical document declares near the top:
+For separately maintained canonical documents, use this header or the project's established equivalent:
 
 ```markdown
 Status: Active | Draft | Superseded | Archived
-Canonical For: <one narrow responsibility>
+Canonical For: <responsibility or clearly owned sections>
 Last Reconciled: YYYY-MM-DD
-Freshness Rule: <event rule; optional time fallback>
-Archive Rule: <what leaves this view and where it goes>
+Freshness Rule: <events that require verification>
+Archive Rule: <what leaves this view and where it remains accessible>
 ```
 
-Add where relevant:
+Live state adds `As Of`; roadmaps add `Plan Version`; contracts can add `Contract Version` and `Last Verified Against`; diagnostics use `Diagnostic Status`; lesson entries can use `Rule Status`. Combined documents may share metadata while keeping facts in distinct sections.
 
-- live views: `As Of`, and `Evidence Cutoff` when evidence matters;
-- roadmap: `Plan Version`, plus `Supersedes` and `Change Reason` on material revision;
-- stable contracts: `Contract Version`, `Effective From`, `Last Verified Against`;
-- diagnostics: `Diagnostic Status`, `Resolved On`, `Resolution`;
-- lessons: `Rule Status: Active | Superseded | Retired`.
+Refresh on relevant changes. Time fallbacks are review signals, not automatic transitions. Auditor defaults are 7 days for progress, 14 for TODO and 45 for plans, configurable to the project; missing or old dates mean verify, not delete.
 
-Event-based refresh is mandatory. Suggested fallbacks: `PROGRESS.md` 7 inactive days, `TODO.md` 14 days, active multi-month plan 45 days. A timeout marks information unverified; it does not complete, cancel, archive, or delete it.
+## Keep views useful
 
-## 3. Live Views, Ledgers, and Contracts
+- Progress contains current phase, blocker, next action, active artifacts and evidence boundary. Move durable resolved explanations to their owners.
+- TODO contains active work: Pending, Ready, In Progress, Blocked, Review by default. It owns dependencies, task owners and acceptance.
+- Roadmap owns phase meaning, stage gates, accepted transitions and fallback. Compress completed phases into outcome, evidence and meaning.
+- Run ledgers preserve failures, artifact locations, trust transitions and corrections. Shard if needed behind a stable index.
+- Contracts contain accepted rules. Diagnostics retain explicit open/resolved/superseded/invalidated state. Lessons retain mistake history while retiring obsolete prevention rules.
+- Team documents hold stable collaboration rules, not current assignments or pane logs.
 
-| Class | Documents | Lifecycle |
-| --- | --- | --- |
-| Live views | `PROGRESS.md`, `TODO.md`, current roadmap view | Rewrite and compact as reality changes; do not append indefinitely |
-| Factual ledgers | `RUN_REGISTRY.md`, terminal task archive | Append-oriented; preserve corrections and negative evidence |
-| Stable contracts | PRD, interface/result, backend/evidence, app flow, team protocol | Keep current accepted truth; remove superseded alternatives from the active contract |
-| Diagnostics | `doc/diagnostics/*.md` | Preserve evidence with explicit open/resolved/superseded/invalidated state |
-| Lessons | `lessons.md` | Preserve real mistakes; retire obsolete prevention rules explicitly |
+## Closeout
 
-Git history normally preserves old wording. Do not create a second active-state file merely to save every snapshot.
+For a completed task, verify acceptance and evidence. For Cancelled, Rejected or Superseded work, record the decision, reason and successor impact instead of claiming successful implementation. Blocked, Review, or ambiguous work remains active.
 
-## 4. Document Rules
+Promote durable facts, update affected dependencies, preserve the terminal outcome in an archive, remove its active row, and update the resume point. Archived records may still be referenced by successor tasks; keep these references resolvable. Do not archive work that still needs execution, acceptance, or review.
 
-### Agent entrypoint
+Run closeout records outcome, trust and artifact boundaries. Stage closeout requires its exit evidence or a recorded decision to cancel/supersede it; reconcile affected roadmap and tasks. Project closeout resolves or transfers remaining work and preserves required evidence.
 
-Owns routing, read order, conflict priority, completion standard, and document map only. Current blocker/task/run details belong in their canonical owners. Use exactly one canonical entrypoint.
+Check resulting consistency once the change is complete. Continue unrelated authorized work if one claim or task cannot close.
 
-### `PROGRESS.md`
+## Cleanup
 
-A materialized current snapshot, not a diary:
+Inspect the affected worktree, documents, references, evidence, and recoverability before changes. Classify questionable information, preserve durable facts, then apply authorized corrections. A compact manifest is useful for a multi-file migration; a wording fix needs only its diff. A manifest is not automatically another user approval gate.
 
-- exactly one current phase;
-- exactly one trusted next action, normally referencing an active task ID;
-- only current blocker, active artifacts/roots, evidence summary, forbidden actions, and stop-loss;
-- resolved blockers leave the live section after durable facts move to diagnostics, ledgers, roadmap history, contracts, or lessons.
+Useful manifest fields are source, fact/task, classification, proposed action, destination, evidence, affected dependencies and any unresolved decision. Available actions: Keep, Verify, Update, Promote, Archive, Invalidate, Delete.
 
-Before shortening it, promote every durable fact. A configurable size warning is a review trigger, not an automatic deletion rule.
+Ask only for authority or a consequential decision that is actually missing. Existing authorization carries forward. After changes, inspect the affected references and state; run the read-only auditor for the supported lifecycle checks.
 
-### `TODO.md`
+## Safe-deletion gate
 
-Contains active work only. Default active states: `Pending`, `Ready`, `In Progress`, `Blocked`, `Review`. Default terminal states: `Done`, `Cancelled`, `Superseded`, `Rejected`.
+Before deleting an obsolete project record or file, verify:
 
-Every active row should name owner, dependency, next action, acceptance gate, evidence state, and last-touched date. A task is not terminal merely because code was written or activity stopped.
+1. It is not active, blocked, under review, or required by an unresolved decision.
+2. Durable facts and required evidence/rationale have been preserved.
+3. No active task, claim, artifact or dependency requires the original.
+4. Applicable retention and reproducibility constraints permit removal.
+5. References can be repaired without losing access to evidence.
+6. The action is within existing authorization and recoverable, or irreversibility is explicitly authorized.
 
-### `IMPLEMENTATION_PLAN.md`
+Then repair and verify affected references and state. The post-change audit is a verification step, not a pre-deletion condition that cannot yet be met. If it reveals damage, repair or restore from the recoverable copy. If a precondition is unresolved, keep, verify, archive or invalidate that item and continue independent changes.
 
-Owns roadmap, phase meaning, entry/exit gates, accepted transitions, stage-level blockers, and fallback. It is not today's command list or complete task history. Compress completed stages into goal, passed gate, evidence, meaning, and date. Material roadmap change increments `Plan Version`.
+A passing structural audit never certifies this gate; it cannot establish artifact contents, retention obligations, or semantic acceptance.
 
-### `RUN_REGISTRY.md`
+## Auditor layouts and limits
 
-Never erase a run because it failed or became inconvenient. Record terminal class, trust transition, artifact boundary, parser eligibility, and correction/invalidated links. Shard large ledgers while preserving a compact canonical index.
-
-### Diagnostics
-
-State `Open`, `Resolved`, `Superseded`, or `Invalidated`. Live documents link only diagnostics that currently affect work. Preserve any diagnostic needed to explain a claim, run class, security decision, or irreversible correction.
-
-### Stable contracts
-
-PRD, interface/result, backend/schema/evidence, app-flow, and team files contain current accepted rules. Proposed alternatives and live blockers do not remain mixed into them. Preserve high-impact superseded rationale through version control or a decision/change record.
-
-### `TEAM.md`
-
-Owns stable collaboration protocol, not current assignees, panes, or a running team log. Current owners stay in `TODO.md`; current team blocker stays in `PROGRESS.md`.
-
-### `lessons.md`
-
-Preserve the mistake, cause, and correction. When its future rule no longer applies, mark the rule superseded or retired rather than deleting the historical lesson.
-
-## 5. Task Closeout
-
-A terminal task may remain in `TODO.md` only during the same closeout operation:
-
-1. verify its acceptance gate and evidence;
-2. record final status/date/outcome and successor impact;
-3. promote run, diagnostic, roadmap, contract, or lesson facts to their owners;
-4. update dependent active tasks;
-5. append the terminal record to `doc/archive/TASKS.md` or `doc/archive/tasks/<phase-or-year>.md`;
-6. remove the terminal row from the active queue;
-7. recompute the `PROGRESS.md` next action;
-8. run the post-change audit.
-
-Never archive a task while it is `Blocked`, `Review`, missing acceptance, missing evidence, needed by an unresolved gate, or ambiguous in final status.
-
-The task archive is terminal-only and append-oriented. It must not contain active work or become a shadow queue.
-
-## 6. Run and Stage Closeout
-
-Run closeout records terminal state, trust, artifacts, reviewer/accounting state, related task changes, and diagnostics.
-
-Stage closeout requires exit evidence, compresses accepted phase meaning, cancels/supersedes obsolete future tasks, reseeds the active queue, updates plan version/current stage, reconciles live state, and updates affected stable contracts.
-
-Project closeout transfers or closes every active task, bounds final claims, preserves required evidence and lessons, and leaves a recoverable archive/index.
-
-## 7. Cleanup Workflow
-
-All cleanup follows this order:
-
-1. **Protect**: inspect worktree and unrelated edits; ensure recoverability.
-2. **Inventory**: list canonical documents, owner, status, freshness, archive rule, and active references.
-3. **Detect**: find conflicts, duplicates, stale references, terminal tasks in live views, plan/phase drift, evidence gaps, and live-state pollution.
-4. **Classify**: assign one lifecycle state to every suspect item.
-5. **Manifest**: propose `Keep`, `Verify`, `Update`, `Promote`, `Archive`, `Invalidate`, or `Delete`.
-6. **Promote**: move durable facts to their owner before removing an old copy.
-7. **Apply safely**: reversible, high-confidence actions first; obtain approval for uncertain or destructive changes.
-8. **Verify**: rerun the audit and report remaining active state, archives, invalidations, deletions, risks, and next action.
-
-Cleanup manifest:
-
-| ID | Source | Fact/task | Classification | Action | Destination/owner | Evidence | Active references/dependencies | Risk | Confidence | Approval? |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-
-## 8. Safe-Deletion Gate
-
-Deletion is allowed only when every condition is true:
-
-1. item is not current, active, blocked, under review, or required by an unresolved gate;
-2. durable facts were promoted;
-3. no active task, document, claim, artifact, or dependency needs it;
-4. required evidence/rationale remains in a ledger, diagnostic, decision record, archive, or version control;
-5. retention, reproducibility, legal, security, and audit rules permit deletion;
-6. references were updated and verified;
-7. deletion is recoverable, or the user explicitly approved irreversibility;
-8. the post-cleanup audit passes.
-
-If any condition fails, keep, verify, archive, or invalidate instead.
-
-## 9. Cross-Document Invariants
-
-A healthy project has:
-
-- one owner per current fact;
-- one current phase and one next action in `PROGRESS.md`;
-- a matching active stage in the plan;
-- a next action tied to an active task or explicit no-action blocker;
-- no terminal task in the active queue after closeout;
-- no active task in a terminal archive;
-- every blocked/review task carrying its unblock/acceptance evidence boundary;
-- every evidentiary run in `RUN_REGISTRY.md` with trust and artifact path;
-- current accepted truth in stable contracts;
-- invalidated/superseded material visibly non-current;
-- open diagnostics reachable from affected live state/tasks;
-- no archive functioning as an alternate queue.
-
-## 10. Non-Standard Layouts
-
-Do not duplicate files to satisfy the auditor. Add `projectos.audit.json`:
+Map existing files instead of creating duplicate owners:
 
 ```json
 {
   "documents": {
-    "entrypoint": "00_READ_THIS_FIRST/AGENTS.md",
-    "progress": "00_READ_THIS_FIRST/PROGRESS.md",
-    "todo": "02_canonical_docs/TODO.md",
-    "plan": "02_canonical_docs/IMPLEMENTATION_PLAN.md",
-    "run_registry": "02_canonical_docs/RUN_REGISTRY.md"
+    "entrypoint": "00/AGENTS.md",
+    "progress": "00/STATE.md",
+    "todo": "02/WORK.md",
+    "plan": "02/PLAN.md",
+    "run_registry": "02/RUNS.md"
   },
-  "diagnostics_globs": ["02_canonical_docs/diagnostics/*.md"],
-  "task_archive_globs": ["02_canonical_docs/archive/tasks/**/*.md"],
+  "task_archive_globs": ["02/archive/**/*.md"],
+  "diagnostics_globs": ["02/diagnostics/*.md"],
   "active_task_statuses": ["approval-blocked"],
   "thresholds": {"max_progress_lines": 250}
 }
 ```
 
-Configured paths must remain inside the project root. Status aliases extend the default vocabulary; they never weaken terminal/archive safety.
+String mappings select entire files. For combined documents, map each role to a `{ "path": "PROJECT.md", "section": "Active work" }` object so active tasks and historical rows remain separate. `archive` can map a terminal-history section. See `references/audit-format.md` for the supported schema, dependency interpretation, coverage and output boundary.
+
+Inspect report coverage before interpreting a clean result: absent roles mean some checks did not run. The auditor does not validate experiment artifact contents, semantic acceptance or deletion authorization. Review unsupported structures directly.
