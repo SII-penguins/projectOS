@@ -21,12 +21,12 @@ A question, read-only review, or isolated typo fix stays small. ProjectOS does n
 
 ## Installation
 
-Stable release: **[v2026.10.09](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09)**.
+Stable release: **[v2026.10.09.1](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09.1)**.
 
 In Codex, ask the built-in skill installer:
 
 ```text
-Install the project-os skill from SII-penguins/projectOS at tag v2026.10.09.
+Install the project-os skill from SII-penguins/projectOS at tag v2026.10.09.1.
 The skill is at the repository root. If it is already installed, back up the
 current version before replacing it and validate the installed package.
 ```
@@ -35,7 +35,7 @@ For a fresh manual installation:
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone --depth 1 --branch v2026.10.09 \
+git clone --depth 1 --branch v2026.10.09.1 \
   https://github.com/SII-penguins/projectOS.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/project-os"
 ```
@@ -144,19 +144,21 @@ The optional adapter is for a deliberately configured host. It is not enabled by
 
 ### Enroll a project once for future sessions
 
-The current development version adds `session_scope: "project"` (not yet included in the `v2026.10.09` release above). In the project's session, ask:
+The release includes `session_scope: "project"`. Enrollment is opt-in and depends on verified support in your actual working host. In the project's session, ask:
 
 ```text
 Use $project-os to set up project-local hooks once with session_scope=project and observe mode,
 so future sessions in this project join automatically. Preserve existing configuration; do not
-enable global hooks or automatic continuation. Validate in isolated test sessions before enabling
-this project. Verify host loading, trust and real event receipts with two new sessions using the
-same profile, then document how to disable observation or exclude an existing session.
+enable global hooks or automatic continuation. Check the actual working host first and reuse
+applicable host qualification. Verify this project's loading, exact trust and real event receipts
+with one small fresh-session smoke check. Document disabling and existing-session exclusions.
 ```
+
+The [shipped host qualification](references/host-qualification.json) covers the recorded Codex 0.161.0 desktop/local execution path; other environments need matching evidence. Publication and installation alone do not verify your project.
 
 After one-time project configuration and host trust, new sessions need no allowlist update. The scope covers the configured root and ordinary subdirectories, excluding nested Git repositories/worktrees, external worktrees and symlink escapes. Enroll other worktrees separately. Use `excluded_sessions` to protect existing conversations. Existing allowlist profiles keep their behavior; bounded continuation still requires the original exact authorization mode. See [host setup](references/host-adapter.md#one-time-project-setup) for the profile and acceptance checks.
 
-You can request setup from a session interrupted during document maintenance. Have the agent reread the actual installed Skill, inspect pending edits and operation journals, and preserve unfinished work instead of rolling back the repository or replacing its layout. Run the first Hook trial in isolated new sessions. Do not reconstruct missing pre-edit snapshots for past turns. After configuration, host trust and any necessary reload, observation starts with subsequent turns that have complete events. If the old session cannot load the new configuration, continue in a new session rather than claiming a successful hot reload.
+You can request setup from a session interrupted during document maintenance. Have the agent reread the actual installed Skill, inspect pending edits and operation journals, and preserve unfinished work instead of rolling back the repository or replacing its layout. Keep developer qualification in an isolated fixture; ordinary enrollment reuses matching evidence and checks one fresh project session. Do not reconstruct missing pre-edit snapshots for past turns. After configuration, host trust and any necessary reload, observation starts with subsequent turns that have complete events. If the old session cannot load the new configuration, continue in a new session rather than claiming a successful hot reload.
 
 ## Development and validation
 

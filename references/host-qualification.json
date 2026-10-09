@@ -1,0 +1,222 @@
+{
+  "schema": "projectos-host-qualification-v1",
+  "qualified_at": "2026-10-09",
+  "status": "qualified_project_observe_scoped",
+  "runtime": {
+    "version": "0.161.0",
+    "binary_sha256": "9a820c17865fa825d04db416818679a9d63bd72e50835c396f496e5684626c9c",
+    "client": "existing Codex Desktop remote SSH app-server",
+    "transport": "WebSocket over existing Unix socket",
+    "executor": "native local command executor on CPU host",
+    "inference": "authenticated actual desktop request path",
+    "model": "gpt-6-astra",
+    "reasoning_effort": "high"
+  },
+  "effective_configuration": {
+    "code_mode_host": true,
+    "plugin_hooks": true,
+    "plugins": true,
+    "sandbox_mode": "danger-full-access",
+    "approval_policy": "never",
+    "project_root_trust": "exact resolved root",
+    "hook_source": ".codex/hooks.json",
+    "hook_trust": "exact discovered key/currentHash",
+    "handlers": "four synchronous project commands",
+    "scope": "project",
+    "mode": "observe",
+    "authorized_write_turns": []
+  },
+  "implementation_sha256": {
+    "scripts/audit_project_docs.py": "4e59bb86b8720b2761f09bf39facfb58f13fad338b8400619924b65804689c58",
+    "scripts/audit_project_transition.py": "3e5f34de9a179403b4adef0d76712e3e928465b3850cae7b3c4f17ff096cf264",
+    "scripts/check_projectos_adoption.py": "f8ebc4ea83689a97752acc04ff77e7e1ef2f7e0f5c64411f7c080c6aa22a0b11",
+    "scripts/lifecycle_change.py": "5958cf508a47288fdf384ea739a0f1c5f66c9b4a2282d723048263bb1856c95a",
+    "scripts/projectos_hook.py": "8456684bd9c76921034279fc60d92a99358dc7621c2d97754f6eb9c06d4793b9",
+    "scripts/validate_skill.py": "2db54b7575e4d7cdcab02dfb6820a40758fbeccf3f7f4539c244b9aef210e939"
+  },
+  "two_session_profile_unchanged": true,
+  "cases": [
+    {
+      "case": "fresh_read_session_1",
+      "passed": true,
+      "thread_id": "01a11f9f-2607-7fd3-9522-6fa3d2bd9e14",
+      "turn_id": "01a11f9f-2667-7b00-8854-4d31776090d6",
+      "trace_sha256": "79d9b0f473f546e7f2bcf134c0bbbf1d56fd687b6c0e3b3c2042ea071aa3e70d",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 1
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 1
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": true,
+      "receipt_written": true,
+      "changed_owners": [],
+      "structural_status": "partial"
+    },
+    {
+      "case": "fresh_read_session_2",
+      "passed": true,
+      "thread_id": "01a11fa1-22c5-78e3-808c-3554e8318667",
+      "turn_id": "01a11fa1-231f-7f43-89b1-4b93ac6288bb",
+      "trace_sha256": "01d27ef33c076bc3b7b79b9a9a46ba28c8063d550924293ce40753be355cf5d5",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 1
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 1
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": true,
+      "receipt_written": true,
+      "changed_owners": [],
+      "structural_status": "partial"
+    },
+    {
+      "case": "owner_write",
+      "passed": true,
+      "thread_id": "01a11fa1-c1b1-7bd3-981e-66f1e80702a6",
+      "turn_id": "01a11fa1-c200-7831-bdb7-24a8268c2dd2",
+      "trace_sha256": "2c0137d12d8deeaf01f7517fd30fb86fea415cd763760a62e3cf62aa08f59954",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 1
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 1
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": true,
+      "receipt_written": true,
+      "changed_owners": [
+        "PROGRESS.md"
+      ],
+      "structural_status": "partial"
+    },
+    {
+      "case": "excluded_session",
+      "passed": true,
+      "thread_id": "01a11fa2-17dc-79d1-a9a3-8283a8eb7a19",
+      "turn_id": "01a11fa2-1857-7570-a1b5-47dddc4a459a",
+      "trace_sha256": "021f8d1fd6c2814bafc62ce0c2217883081c6f64a2aa10f6cc9dee19876d119c",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 0
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": false,
+      "receipt_written": false,
+      "changed_owners": [],
+      "structural_status": "not_applicable"
+    },
+    {
+      "case": "outside_project",
+      "passed": true,
+      "thread_id": "01a11fa2-8b56-7081-83b7-98ad6ae7d891",
+      "turn_id": "01a11fa2-8bba-7fb3-b885-e46eed1e586f",
+      "trace_sha256": "28b6eb582e2f413c1b6057395b09c6f4e6111cb4444f672eebeab726acde530d",
+      "events": [],
+      "successful_tool_calls": 1,
+      "baseline_written": false,
+      "receipt_written": false,
+      "changed_owners": [],
+      "structural_status": "not_applicable"
+    }
+  ],
+  "regressions": {
+    "tests": 190,
+    "result": "passed",
+    "package_errors": 0,
+    "package_warnings": 0
+  },
+  "retained_counterexamples": [
+    {
+      "case": "raw JSON over Unix WebSocket endpoint",
+      "result": "initialize timed out",
+      "resolution": "use correct WebSocket framing"
+    },
+    {
+      "case": "parent trust without exact project root trust",
+      "result": "zero hooks, no loader errors",
+      "resolution": "exact project trust and verified project JSON definition"
+    },
+    {
+      "case": "initial read-only sandbox smoke",
+      "result": "real inference and three events; unified exec launch failed; PostToolUse absent",
+      "resolution": "qualify against actual existing desktop sandbox configuration; not a read-only-sandbox support claim"
+    }
+  ],
+  "limits": [
+    "Structural receipts are partial because the fixture intentionally has no full acceptance/exit mapping; this is event-delivery qualification, not scientific acceptance.",
+    "No native compaction, interruption/recovery, bounded continuation, or running-session hot reload qualification is claimed by these cases.",
+    "Other client builds, cloud-only executors, request paths and sandbox configurations need applicable evidence.",
+    "Excluded-session test adds an exclusion after the two unchanged-profile session checks; it produces no baseline or receipt.",
+    "Raw authenticated traces stay in private delivery evidence. Published digest records identify them; no private credentials or account data are distributed."
+  ],
+  "reuse_rule": "Match runtime/build, transport/executor, relevant configuration, adapter implementation hashes and project-observe semantics. Verify each project root, exact handler trust, audit mapping and a fresh-session smoke result."
+}

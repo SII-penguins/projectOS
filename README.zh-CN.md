@@ -21,12 +21,12 @@ ProjectOS 是用于 Codex 长期工作的 Agent Skill。它帮助模型找到该
 
 ## 安装
 
-稳定版本：**[v2026.10.09](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09)**。
+稳定版本：**[v2026.10.09.1](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09.1)**。
 
 在 Codex 中，可以直接让内置 skill-installer 安装：
 
 ```text
-从 SII-penguins/projectOS 的 v2026.10.09 标签安装 project-os skill。
+从 SII-penguins/projectOS 的 v2026.10.09.1 标签安装 project-os skill。
 Skill 位于仓库根目录。如果已安装，先备份当前版本，再更新并验证实际安装目录。
 ```
 
@@ -34,7 +34,7 @@ Skill 位于仓库根目录。如果已安装，先备份当前版本，再更�
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone --depth 1 --branch v2026.10.09 \
+git clone --depth 1 --branch v2026.10.09.1 \
   https://github.com/SII-penguins/projectOS.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/project-os"
 ```
@@ -142,18 +142,20 @@ python -B scripts/check_projectos_adoption.py /path/to/project \
 
 ### 一次接入项目，后续会话自动观察
 
-当前开发版本新增 `session_scope: "project"`（尚未包含在上方的 `v2026.10.09` 发布包中）。在项目 session 中可以说：
+本正式版本包含 `session_scope: "project"`。接入需要明确授权，并以实际工作宿主的支持证据为前提。在项目 session 中可以说：
 
 ```text
 使用 $project-os，为本项目一次性接入项目范围 Hook，使用 session_scope=project 和 observe 模式，
 让今后这个项目的新会话自动接入。保留现有配置，不启用全局 Hook 或自动续跑。
-先在隔离测试会话验证，再配置本项目；核实宿主加载、信任和真实事件回执，
-用两个新会话验证无需再维护 session 白名单，并说明如何停用和排除已有会话。
+先检查实际工作宿主，复用适用的宿主验收依据；核实本项目的加载、精确信任和真实事件回执，
+用一个新会话做小范围确认，并说明如何停用和排除已有会话。
 ```
+
+[随包宿主验收记录](references/host-qualification.json)覆盖已记录的 Codex 0.161.0 桌面连接及本地执行路径；其他环境需要匹配的证据。正式发布或全局安装本身不代表你的项目已接入通过。
 
 完成一次项目级配置和宿主信任后，后续会话无需再说“加入允许列表”。它匹配配置的项目根目录及普通子目录，排除嵌套 Git 仓库、嵌套 worktree、外部 worktree 和解析后越界的符号链接；其他 worktree 单独接入。需要保留某个已有会话时，使用 `excluded_sessions`。已有白名单配置保持原行为，自动续跑仍只能在原有精确授权模式下使用。完整配置与验证步骤见[宿主适配](references/host-adapter.md#one-time-project-setup)。
 
-如果此前因文档整理而中断，可以在原 session 中发起接入：先让 Agent 重新读取实际安装的新版 Skill，检查未完成修改和变更日志，保留尚未完成的整理工作；不要整库回滚或重新套模板。首次 Hook 验证仍在隔离的新会话中进行。旧会话此前缺失的修改前快照不能补造；完成配置、宿主信任和必要的加载后，从后续具备完整事件的轮次开始记录。若旧会话不支持加载新配置，就在新会话中接续，而不能宣称已经热加载生效。
+如果此前因文档整理而中断，可以在原 session 中发起接入：先让 Agent 重新读取实际安装的新版 Skill，检查未完成修改和变更日志，保留尚未完成的整理工作；不要整库回滚或重新套模板。完整开发验收在隔离项目中进行；普通项目接入复用匹配的验收依据，再用一个新会话确认。旧会话此前缺失的修改前快照不能补造；完成配置、宿主信任和必要的加载后，从后续具备完整事件的轮次开始记录。若旧会话不支持加载新配置，就在新会话中接续，而不能宣称已经热加载生效。
 
 ## 开发与验证
 
