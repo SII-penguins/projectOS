@@ -142,6 +142,20 @@ When evidence is withdrawn, correct the current claims and preserve the original
 
 The optional adapter is for a deliberately configured host. It is not enabled by installation, does not create a background task runner, and does not guarantee that ordinary editing tools cannot bypass the entry. Recorded-input coverage also does not provide cross-file transactions or protection against every external concurrent writer.
 
+### Enroll a project once for future sessions
+
+The current development version adds `session_scope: "project"` (not yet included in the `v2026.10.09` release above). In the project's session, ask:
+
+```text
+Use $project-os to set up project-local hooks once with session_scope=project and observe mode,
+so future sessions in this project join automatically. Preserve existing configuration; do not
+enable global hooks or automatic continuation. Validate in isolated test sessions before enabling
+this project. Verify host loading, trust and real event receipts with two new sessions using the
+same profile, then document how to disable observation or exclude an existing session.
+```
+
+After one-time project configuration and host trust, new sessions need no allowlist update. The scope covers the configured root and ordinary subdirectories, excluding nested Git repositories/worktrees, external worktrees and symlink escapes. Enroll other worktrees separately. Use `excluded_sessions` to protect existing conversations. Existing allowlist profiles keep their behavior; bounded continuation still requires the original exact authorization mode. See [host setup](references/host-adapter.md#one-time-project-setup) for the profile and acceptance checks.
+
 ## Development and validation
 
 ```sh

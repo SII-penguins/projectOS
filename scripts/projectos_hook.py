@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Opt-in, session-allowlisted ProjectOS hook. Writes only private adapter state.
+"""Opt-in, session- or project-scoped ProjectOS hook. Writes only private state.
 
 No hook is installed by this script. Supply --profile explicitly; stdin is the
 host hook event JSON. Default mode only observes. Never edits project documents.
@@ -68,12 +68,25 @@ def turn_lock(path):
 def run(profile, event):
     if profile.get("schema") != "projectos-hook-v1":
         raise ValueError("Unsupported profile schema")
+    scope = profile.get("session_scope", "allowlist")
+    if scope not in {"allowlist", "project"}:
+        raise ValueError("session_scope must be allowlist or project")
     allowed = profile.get("allowed_sessions", [])
     if not isinstance(allowed, list) or any(not isinstance(x, str) or not x or x == "*" for x in allowed):
         raise ValueError("allowed_sessions must contain explicit session IDs, never a wildcard")
+    excluded = profile.get("excluded_sessions", [])
+    if not isinstance(excluded, list) or any(not isinstance(x, str) or not x or x == "*" for x in excluded):
+        raise ValueError("excluded_sessions must contain explicit session IDs, never a wildcard")
     sid = event.get("session_id")
-    if not sid or sid not in allowed:
-        return {}  # Crucially: no state writes or project reads for another session.
+    if not isinstance(sid, str) or not sid.strip() or sid in excluded:
+        return {}
+    if scope == "allowlist" and sid not in allowed:
+        return {}  # No state writes or project reads for an unlisted session.
+    if scope == "project":
+        if allowed:
+            raise ValueError("project scope replaces allowed_sessions; omit it or use an empty list")
+        if profile.get("mode", "observe") != "observe" or profile.get("authorized_write_turns", []):
+            raise ValueError("project scope supports observe only, without authorized_write_turns")
     cwd_value = event.get("cwd")
     if not isinstance(cwd_value, str) or not cwd_value or not Path(cwd_value).is_absolute():
         raise ValueError("Host cwd must be a nonempty absolute path")
@@ -84,6 +97,14 @@ def run(profile, event):
     cwd = Path(cwd_value).resolve(strict=True)
     if not cwd.is_relative_to(root):
         return {}
+    if scope == "project":
+        # Resolve symlinks first, then stop at nested repositories/worktrees.
+        # A plain subdirectory belongs to this root; a .git boundary does not.
+        current = cwd
+        while current != root:
+            if (current / ".git").exists() or (current / ".git").is_symlink():
+                return {}
+            current = current.parent
     mode = profile.get("mode", "observe")
     if mode not in {"observe", "bounded"}:
         raise ValueError("mode must be observe or bounded")

@@ -35,7 +35,7 @@ Use `references/daily-work.md` for adoption, missing tasks, obligation coverage,
 - Resume, reconcile, archive, or close out project state: `references/lifecycle-protocol.md`; it routes advanced transitions and audit formats when needed.
 - Design a team workflow when requested or already in use: `references/team-blueprint.md`.
 - Need a concrete document example: relevant part of `references/example-output-skeleton.md`.
-- Add optional host reminders without changing other sessions: `references/host-adapter.md`.
+- Add optional host reminders or one-time project enrollment for future sessions: `references/host-adapter.md`. Project enrollment is explicit and observe-only; installing this Skill does not activate hooks.
 - Evaluate this skill: `references/evaluation-scenarios.md`.
 
 Load references that affect the current task; linked resources are not a reading checklist.

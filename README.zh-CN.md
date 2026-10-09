@@ -140,6 +140,19 @@ python -B scripts/check_projectos_adoption.py /path/to/project \
 
 可选适配器用于经过明确配置的宿主，安装 Skill 不会自动启用它。它不创建后台任务调度器，也不能保证普通编辑工具无法绕过入口。已记录输入的覆盖检查不等于跨文件事务或对所有外部并发写入的保护。
 
+### 一次接入项目，后续会话自动观察
+
+当前开发版本新增 `session_scope: "project"`（尚未包含在上方的 `v2026.10.09` 发布包中）。在项目 session 中可以说：
+
+```text
+使用 $project-os，为本项目一次性接入项目范围 Hook，使用 session_scope=project 和 observe 模式，
+让今后这个项目的新会话自动接入。保留现有配置，不启用全局 Hook 或自动续跑。
+先在隔离测试会话验证，再配置本项目；核实宿主加载、信任和真实事件回执，
+用两个新会话验证无需再维护 session 白名单，并说明如何停用和排除已有会话。
+```
+
+完成一次项目级配置和宿主信任后，后续会话无需再说“加入允许列表”。它匹配配置的项目根目录及普通子目录，排除嵌套 Git 仓库、嵌套 worktree、外部 worktree 和解析后越界的符号链接；其他 worktree 单独接入。需要保留某个已有会话时，使用 `excluded_sessions`。已有白名单配置保持原行为，自动续跑仍只能在原有精确授权模式下使用。完整配置与验证步骤见[宿主适配](references/host-adapter.md#one-time-project-setup)。
+
 ## 开发与验证
 
 ```sh
