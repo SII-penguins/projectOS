@@ -1,136 +1,150 @@
 # ProjectOS
 
-ProjectOS 是用于长期项目规划和状态维护的 Agent Skill。它让当前工作、历史记录和证据各有归属，便于跨会话继续推进项目。
+**让项目目标、当前状态、未完成工作和证据能够跨 AI 会话持续使用。**
 
-[English README](README.md)
+ProjectOS 是用于 Codex 长期工作的 Agent Skill。它帮助模型找到该做的任务，在已有授权内推进，并在事实变化后更新项目自己的文档，让下一次会话可以直接接续。
 
-Astra／生命周期优化版本见 [PR #5](https://github.com/SII-penguins/projectOS/pull/5)。变更、验证结果和能力边界集中在[审查摘要](ASTRA_REVIEW.md#review-summary)；试用该版本请使用下方[安装说明](#安装)中的指定分支命令。
+[English guide](README.md) · [安装](#安装) · [开始使用](#开始使用) · [参考导航](#参考导航)
 
-## 使用方式
+## 适合什么工作
 
-安装后直接描述需要完成的结果：
+适合需要跨多个会话推进的研究、软件开发、实验，以及存在多项任务和验收要求的项目。
 
-```text
-$project-os 把这份调研整理成可执行项目计划，并直接创建最小必要文档。普通细节用合理默认值。
-```
+它主要帮助你：
 
-```text
-$project-os 规划并实现这个功能，完成约定的验证。
-```
+- **启动项目**：将目标和已有材料整理成可执行计划及少量必要文档。
+- **继续工作**：确认当前任务、依赖、适用要求和已有授权。
+- **维护当前状态**：替换过时结论，更新受影响的权威位置，保留证据和未完成义务。
+- **收尾与恢复**：区分运行结束、任务完成和验收成立，保留部分结果，恢复中断的文档变更。
 
-```text
-$project-os 根据当前证据，修正互相冲突的 TODO、PROGRESS 和路线图。
-```
-
-```text
-$project-os 先规划这个项目，只给方案，不要写文件。
-```
-
-支持显式调用；客户端支持时也允许隐式选择。提到某个文件名或进行普通小改动，并不自动触发整套项目治理。Skill 不会切换客户端的 Planning 模式。
-
-## 工作方式
-
-先读取与任务有关的材料，明确结果、范围和验收要求，然后完成已授权的工作。Brief 和文档地图可以作为工作产物，不再默认分别要求用户批准；用户明确要求分阶段审阅时，仍按要求暂停。
-
-只询问当前工作真正需要、且无法从材料合理推断的决策。普通、可逆的选择可采用默认值，重要假设写清楚；某个问题未解决，不妨碍独立且已授权的工作继续。
-
-“只出方案”以可用方案结束；“规划并实现”继续完成实现和适当验证。已有项目约束、验收命令、算力预算和用户授权保持有效。
-
-按任务加载资料，不要求固定提问数量、固定团队规模、常驻 reviewer 或每次通读整个项目。
-
-持续项目的入口会包含按变化触发的回写规则：事实变化时更新已有 owner，未变化的不重写。安装 ProjectOS 不等于启动后台监控，也不要求每次普通编码都执行完整生命周期流程。
-
-## 文档职责
-
-选择最小充分的结构，保留已有路径。下表是默认职责，不是必须生成的文件清单：
-
-| 职责 | 默认归属 |
-| --- | --- |
-| 项目特有约束与文档路由 | `AGENTS.md` |
-| 当前阶段、阻塞与下一步 | `PROGRESS.md` |
-| 活动任务与验收 | `TODO.md` |
-| 路线图与阶段意义 | `doc/IMPLEMENTATION_PLAN.md` |
-| 运行、产物与证据可信度 | `doc/RUN_REGISTRY.md` |
-| 产品／研究目标与接口契约 | `doc/PRD.md` 和领域契约文档 |
-| 需要保留的故障分析 | `doc/diagnostics/` |
-| 确有需要的协作规则 | `doc/TEAM.md` |
-| 真实错误与适用的预防规则 | `lessons.md` |
-| 已终止任务的结果记录 | `doc/archive/` |
-
-小项目可将不同职责放在同一文件的独立章节，每条事实仍只有一个 owner。Owner 决定事实应在哪里更新，不保证旧文字正确；冲突需结合当前证据核实。
-
-## 生命周期与清理
-
-当前状态和活动队列保持精简；运行记录保留失败和可信度变化。提案、失效结论和历史材料应与当前已接受规则区分。
-
-收尾先保留结果、更新依赖，再将终止任务移出活动队列。完成需要验收证据；取消、拒绝、替代需要相应决策及后继影响，不要求虚构实现成功。Blocked 和 Review 仍是活动工作。
-
-清理前检查受影响状态和可恢复性，移除旧副本前迁移有效事实。删除还需核实活动依赖、证据保留、适用的留存约束及已有授权。仅凭文件过旧或审计通过，不能判定可删除。详见[生命周期规则](references/lifecycle-protocol.md)。
-
-创建与采用、证据修正、任务重新开启、文档迁移和中断恢复的具体处理见[文档与证据状态迁移](references/lifecycle-transitions.md)。生命周期与可信度分开：归档的证据可能仍有效，曾经接受的结果也可能后来被推翻。重新开启保留原结果并创建新尝试；中断收尾从现有文件继续，不重复追加归档。
+解释问题、只读审查和单独修正错别字仍按小任务处理，不要求每次编辑都新建计划、任务记录或生命周期操作。
 
 ## 安装
 
-在客户端技能目录中选择下列一条命令执行，目标文件夹名使用 `project-os`。
+稳定版本：**[v2026.10.09](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09)**。
 
-安装默认分支：
+在 Codex 中，可以直接让内置 skill-installer 安装：
 
-```bash
-git clone https://github.com/SII-penguins/projectOS.git project-os
+```text
+从 SII-penguins/projectOS 的 v2026.10.09 标签安装 project-os skill。
+Skill 位于仓库根目录。如果已安装，先备份当前版本，再更新并验证实际安装目录。
 ```
 
-安装 [PR #5](https://github.com/SII-penguins/projectOS/pull/5) 对应的 Astra／生命周期优化分支：
+首次手动安装：
 
-```bash
-git clone --branch codex/astra-projectos-review --single-branch https://github.com/SII-penguins/projectOS.git project-os
+```sh
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+git clone --depth 1 --branch v2026.10.09 \
+  https://github.com/SII-penguins/projectOS.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/project-os"
 ```
 
-两条命令二选一。指定分支命令明确选择优化版本，不表示 PR 已合并到默认分支。
+如果目录已经存在，先保留旧版本和本地修改，再更新，不要直接覆盖。Release 同时提供包含 `project-os/` 的压缩包和 SHA-256 清单。附带命令行工具需要 Python 3.10+，只使用标准库；可选 Hook 适配器需要 POSIX 文件锁。
 
-Codex 通常使用 `$CODEX_HOME/skills/project-os`。若目标目录已存在，先检查已有改动再更新，不要覆盖独立修改过的安装。安装 skill 不会合并 PR，也不会启动后台项目维护。
+安装后，后续轮次可以使用该 Skill。安装不会修改项目中的 `AGENTS.md`，也不会自动启用全局 Hook。
 
-## 验证与审计
+## 开始使用
 
-需要 Python 3.10 或更新版本，无第三方依赖。
+### 1. 启动或整理项目
 
-```bash
-python scripts/validate_skill.py .
-python -m unittest discover -s tests -v
-python scripts/audit_project_docs.py /path/to/project
+首次设置可以显式调用：
+
+```text
+使用 $project-os 整理这个项目。先阅读已有文档，保留当前布局和审批规则，
+为以下目标提出最小必要计划和文档更新：[描述你的目标]。
 ```
 
-包验证器检查元数据、资源路径和脚本语法；单元测试检查脚本行为。模型行为另外使用[真实请求场景](references/evaluation-scenarios.md)评估，不把固定话术匹配当成行为证明。
+已有项目继续使用现有权威文档。常见职责如下：
 
-元数据检查支持普通单行字符串和基础折叠／字面量描述块，会拒绝重复的发现字段、损坏的 UTF-8 和错误的显式技能名；它不是任意 YAML 扩展的完整 schema 验证器。复杂元数据仍需客户端的 YAML 验证器。ProjectOS 运行工具保持仅依赖标准库。
+| 职责 | 常见位置 |
+| --- | --- |
+| 工作规则和入口指令 | `AGENTS.md` |
+| 当前状态、阻塞和下一动作 | `PROGRESS.md` |
+| 活动任务、依赖和验收 | `TODO.md` |
+| 阶段及退出条件 | 已有计划 |
+| 已接受要求 | 已有规范或合同 |
+| 终态结果及保留证据 | 已有归档或运行记录 |
 
-审计器对项目只读，检查支持的 Markdown 结构、任务表、队列与归档冲突、任务引用、阶段漂移和 trust 列。它不会读取实验产物内容，也不能认证任务完成或删除安全。局部措辞修改只需检查相关 diff 和引用。
+这些是职责划分，不是强制文件名。小项目可以合并为同一文档中的明确分区；自定义路径可通过 `projectos.audit.json` 映射。
 
-报告会列出实际检查的文件、章节和检查项。空扫描会报错；可选 owner 缺失意味着相关检查没有运行。依赖环、未满足的前置任务、含糊的下一步、重复归档和任务自身的过期日期也会被提示，不能用更新文档日期来掩盖旧任务。
+### 2. 添加简短项目入口
 
-非标准目录通过 `projectos.audit.json` 映射：
+希望日常使用时不必每次提醒“使用 ProjectOS”，可以依据项目现有规则加入简短入口，例如：
 
-```json
-{
-  "documents": {
-    "entrypoint": "00/AGENTS.md",
-    "progress": "00/STATE.md",
-    "todo": "02/WORK.md",
-    "plan": "02/PLAN.md",
-    "run_registry": "02/RUNS.md"
-  },
-  "task_archive_globs": ["02/archive/**/*.md"],
-  "thresholds": {"max_progress_lines": 250}
-}
+> 开始受管工作前，查看相关任务、验收、规范和已有授权。需要同步状态或证据时使用 ProjectOS。将变化的事实写回既有权威位置，移除过时当前结论，保留未完成义务。泛化的“继续”不解除明确审批等待；复用有效授权，没有事实变化不重复写回。只读请求和无关小编辑保持在请求范围内。
+
+按实际文档路径和项目规则调整，并确认新会话确实读取了适用指令，包括嵌套目录和 worktree 中的覆盖规则。详见[接入与日常维护](references/daily-work.md)。
+
+### 3. 用普通语言推进
+
+接入后，可以直接提出任务：
+
+| 请求 | 预期行为 |
+| --- | --- |
+| “继续。” | 依据当前义务和授权选择可做工作；特定审批仍缺失时合理等待。 |
+| “修复这个问题，完成约定检查。” | 完成已授权工作，同步变化的结果和真实验证来源。 |
+| “核对失败运行的最新回执，不要重试。” | 记录实际终态，保留未满足验收和重试授权边界。 |
+| “只读解释当前状态。” | 阅读并说明，保持项目文件不变。 |
+| “只改 README 的错别字。” | 完成指定修改，不制造无关治理动作。 |
+
+需要规划或集中整理时，仍可显式调用 `$project-os`。
+
+## 可用工具
+
+以下命令从安装后的 `project-os` 目录运行，并替换实际项目路径。
+
+**只读文档审计：**
+
+```sh
+python -B scripts/audit_project_docs.py /path/to/project
 ```
 
-显式配置的输入必须存在且位于项目内部；未映射的可选默认文件可以不存在，也可用 `null` 禁用可选角色。兼容旧键 `run`，推荐使用 `run_registry`。状态别名不能把活动状态改成终止状态。
+已有自定义布局：
 
-合并文档可使用 `"todo": {"path": "PROJECT.md", "section": "Active work"}` 和 `"archive": {"path": "PROJECT.md", "section": "History"}` 分别映射活动与历史章节；标题缺失或不唯一时会明确报错。完整规则见[审计格式与覆盖范围](references/audit-format.md)。
+```sh
+python -B scripts/audit_project_docs.py /path/to/project \
+  --config projectos.audit.json --format json
+```
 
-`--format json` 输出 JSON；`--output` 的报告路径必须在被审计项目之外。退出码：0 表示未达到指定失败阈值，1 表示 finding 达到 `--fail-on` 阈值，2 表示输入或执行错误。警告仍需按实际内容解释，退出码 0 不代表语义完全正确。
+**预览指令发现：**
 
-## 本次重新审查
+```sh
+python -B scripts/check_projectos_adoption.py /path/to/project \
+  --cwd /path/to/project
+```
 
-本次修改依据 [GPT-6 Astra 官方模型指南](https://developers.openai.com/api/docs/guides/latest-model)和 Eric Provencher 的 [Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)。具体问题与验证记录见 [ASTRA_REVIEW.md](ASTRA_REVIEW.md)。
+这是静态检查，不能单独证明运行中的会话已经读取指令。
 
-所有权和证据规则仍适用于其他模型；调整的是妨碍完成任务的流程约束，没有硬编码模型或增加 API 迁移要求。
+**执行受管文档变更：**宿主提供 `projectos.change` 时使用该受限工具，否则按[生命周期变更入口](references/lifecycle-change.md)使用附带 CLI。入口捕获真实前态、检查拟议修改和漂移、执行限定写入并记录实际结果，不包装任意 shell。只读解释和无关文字编辑不需要此操作。
+
+## 如何理解检查结果
+
+运行是否结束、任务是否完成、验收是否有充分证据，是不同问题。失败运行可以已经结束，而任务仍然 Blocked、验收仍然 Open。
+
+文档审计检查受支持的结构；变更回执绑定已记录文件、操作和检查。两者都不提供执行授权，也不证明实现正确或科研验收成立。对不影响当前决策的警告保留合适处置；真实矛盾必须解决，不能为了审计通过而改要求或改策略。
+
+证据撤回时，修正当前主张，保留原始观察作为历史。变更中断时，先比较实际文件和操作日志再恢复，不回滚整个工作区。
+
+## 参考导航
+
+| 需要做什么 | 阅读入口 |
+| --- | --- |
+| 规划或接入项目 | [启动与调用](references/onboarding-and-invocation.md) |
+| 接续工作、选择下一动作 | [日常维护](references/daily-work.md) |
+| 选择最小文档结构 | [文档蓝图](references/document-blueprints.md) |
+| 同步、归档或收尾 | [生命周期协议](references/lifecycle-protocol.md) |
+| 撤回证据、重开验收 | [生命周期转换](references/lifecycle-transitions.md) |
+| 提交受限变更、恢复中断 | [生命周期变更入口](references/lifecycle-change.md) |
+| 映射自定义文档、理解覆盖范围 | [审计格式](references/audit-format.md) |
+| 集成可选宿主观察 | [宿主适配](references/host-adapter.md) |
+
+可选适配器用于经过明确配置的宿主，安装 Skill 不会自动启用它。它不创建后台任务调度器，也不能保证普通编辑工具无法绕过入口。已记录输入的覆盖检查不等于跨文件事务或对所有外部并发写入的保护。
+
+## 开发与验证
+
+```sh
+python -B scripts/validate_skill.py .
+PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s tests -v
+```
+
+程序测试、宿主集成和模型行为评估各自证明不同范围，版本说明记录相应依据。历史开发审查仍保留在仓库中，日常使用从本指南和上面的参考导航开始。

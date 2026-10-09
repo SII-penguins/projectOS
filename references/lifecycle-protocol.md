@@ -51,6 +51,8 @@ Promote durable facts, update affected dependencies, preserve the terminal outco
 
 Run closeout records outcome, trust and artifact boundaries. Stage closeout requires its exit evidence or a recorded decision to cancel/supersede it; reconcile affected roadmap and tasks. Project closeout resolves or transfers remaining work and preserves required evidence.
 
+Apply transitions that remove work or change acceptance through `references/lifecycle-change.md`; that entry captures the affected state and compares task destinations and outstanding exits internally. A clean after-state alone cannot show that nothing was lost.
+
 Check resulting consistency once the change is complete. Continue unrelated authorized work if one claim or task cannot close.
 
 ## Cleanup

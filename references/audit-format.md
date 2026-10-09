@@ -33,6 +33,7 @@ The `archive` role defaults to `doc/archive/TASKS.md`; additional shards default
 - Active rows can include `Owner`, `Dependencies`, `Next Action`, `Acceptance Gate`, `Evidence`, `Last Touched`. Missing columns are reported for review; their presence does not prove the data is correct.
 - Empty owner/action/acceptance fields, invalid/future task dates, and old task dates are review findings. Refreshing a document-level date does not refresh every task or authorize closing an old task.
 - Archive rows preserve unique attempt IDs and non-placeholder outcome evidence or a cancellation decision. Reopened attempts use a distinct ID linked to the old outcome; see `references/lifecycle-transitions.md`.
+- Mixed terminal archives may use an existing `Object` column: `task` keeps task semantics; `run`, `attempt` or `run/attempt` identifies an execution attempt. Only for that explicit type, `succeeded`, `failed`, `aborted`, `cancelled`/`canceled` and `completed` are supported terminal outcomes (normal status normalization applies). These do not extend task status aliases, prove acceptance or grant retry permission. A completed attempt cannot satisfy a successful-task prerequisite or trigger contract-verification writeback by itself. Missing Object columns retain the legacy task interpretation; unknown types/outcomes remain explicit findings. IDs or status words alone do not infer an object type. Existing identities cannot be retyped to erase task obligations, and existing archive rows remain immutable through the lifecycle entry.
 - Each run table has a unique `ID` (or `Run ID`/`Run`) and a `Trust`/`Trust Level` column with non-placeholder values. A separate trust glossary does not validate run rows. Artifact content and scientific validity are not checked.
 - A roadmap identifies its current stage. `Next Task: T-002` may disambiguate a prose `Next Action` that mentions several tasks. Multiple references without this field produce a warning, not a guess about which task is next.
 
@@ -57,3 +58,11 @@ The report explicitly excludes artifact contents, semantic acceptance, retention
 Use `--format json` for machine-readable output, `--today YYYY-MM-DD` for deterministic freshness checks, and `--fail-on error|warn|none` to choose the finding threshold. Exit 0 means the selected threshold was not exceeded, exit 1 means it was, and exit 2 means invalid input or execution failure. `--fail-on none` does not clear findings.
 
 Reports default to stdout. `--output` must be outside the audited project and cannot alias a project file, including via a hard link. Thresholds accept positive integers: `progress_stale_days`, `todo_stale_days`, `plan_stale_days`, and `max_progress_lines` (nonempty lines of the selected live view).
+
+## Current fields and evidence parsing
+
+Repeated Current Phase/Current Stage/Next Task/Next Action fields are checked inside one Markdown heading scope in the mapped progress view. Different values are errors; identical repetition is a warning. Separate heading subtrees are not compared by this deterministic check. Use a section mapping for combined current/history files; contradictions across prose or different sections require direct review.
+
+Evidence parsing distinguishes `unsupported` (column not recognized), `empty` (recognized but blank/placeholder), and `present_unverified` (content exists, not validated). Recognized aliases include Scope and evidence. A custom `evidence_columns` list extends the aliases without changing evidence requirements. Unsupported terminal columns emit ARCHIVE_EVIDENCE_UNSUPPORTED; empty terminal values emit ARCHIVE_EVIDENCE_MISSING. No alias or nonempty value certifies an artifact.
+
+For task destinations, acceptance changes and explicit exit coverage across edits, use `references/transition-audit.md`. Snapshot and transition coverage complement each other; neither proves semantic correctness.

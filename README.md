@@ -1,134 +1,152 @@
 # ProjectOS
 
-ProjectOS is an Agent Skill for planning long-running projects and maintaining trustworthy project state across sessions. It separates live work from historical evidence and gives every fact one canonical owner.
+**Keep a project's goals, current state, unfinished work, and evidence usable across AI sessions.**
 
-[中文说明](README.zh-CN.md)
+ProjectOS is an Agent Skill for long-running work with Codex. It helps the agent pick up the right task, work within existing authorization, and update the project's own documents when facts change—so the next session can continue without reconstructing the whole conversation.
 
-The Astra/lifecycle revision is tracked in [PR #5](https://github.com/SII-penguins/projectOS/pull/5). Start with the [review summary](ASTRA_REVIEW.md#review-summary) for changes, validation and limitations; use the branch-specific [installation command](#installation) to try that revision.
+[中文指南](README.zh-CN.md) · [Install](#installation) · [Get started](#get-started) · [Reference guide](#reference-guide)
 
-## Use it
+## When to use it
 
-After installation, describe the result you need:
+Use ProjectOS for work that spans sessions: research, software development, experiments, or a project with several open obligations and acceptance criteria.
 
-```text
-$project-os Turn this research report into a usable project plan and create the minimum documents. Use reasonable defaults for routine details.
-```
+It helps with:
 
-```text
-$project-os Plan and implement this feature, then run the agreed checks.
-```
+- **Starting:** turn a goal and existing material into a practical plan and a small set of useful project documents.
+- **Continuing:** find the current task, dependencies, applicable requirements, and existing authorization.
+- **Keeping state current:** replace outdated conclusions, update the affected owners, and preserve evidence and unfinished obligations.
+- **Closing or recovering work:** distinguish a finished run from an accepted task, retain partial results, and recover interrupted document changes.
 
-```text
-$project-os Reconcile the conflicting TODO, progress and roadmap against the current evidence.
-```
-
-```text
-$project-os Plan this project only. Show the proposal before writing any files.
-```
-
-Explicit invocation is supported; implicit discovery is enabled where the client supports it. Mentioning a filename or making an ordinary small edit does not by itself call for project governance. ProjectOS does not switch the client's planning mode.
-
-## What to expect
-
-ProjectOS reads relevant supplied material, identifies scope and acceptance, then completes the authorized work. A brief and document map can be useful outputs, but do not introduce extra approval stops. Staged review still applies when requested. Questions are limited to missing decisions that matter now; independent work continues while a decision is pending.
-
-Planning-only requests end with a usable plan. Requests including implementation continue through implementation and appropriate verification. Existing user instructions, project contracts and resource limits remain authoritative.
-
-Only task-relevant references are loaded. The skill does not prescribe a question count, team size, resident reviewer or full-project reading list.
-
-For ongoing projects, the generated entrypoint includes conditional writeback: update existing owners when a change alters their facts. Installing ProjectOS does not start a background watcher or require a full lifecycle workflow for every coding task.
-
-## Document model
-
-Use the smallest useful set and preserve existing paths. These are default responsibilities, not mandatory files:
-
-| Responsibility | Default owner |
-| --- | --- |
-| Local constraints and document routing | `AGENTS.md` |
-| Current phase, blocker, next action | `PROGRESS.md` |
-| Active tasks and acceptance | `TODO.md` |
-| Roadmap and phase meaning | `doc/IMPLEMENTATION_PLAN.md` |
-| Runs, artifacts and trust levels | `doc/RUN_REGISTRY.md` |
-| Product/research and domain contracts | `doc/PRD.md`, domain-specific contract files |
-| Durable failure reasoning | `doc/diagnostics/` |
-| Collaboration rules, if needed | `doc/TEAM.md` |
-| Actual mistakes and applicable prevention | `lessons.md` |
-| Terminal outcomes | `doc/archive/` |
-
-Small projects may combine responsibilities in clearly owned sections. Canonical ownership identifies where to update a fact; it is not proof that an old document is true. Resolve disagreements against current evidence.
-
-## Lifecycle and cleanup
-
-Live views stay compact. Run evidence preserves failures and trust transitions. Proposed, superseded, invalidated and historical information remains distinct from current accepted state.
-
-Closeout preserves the outcome and updates dependencies before removing a terminal task from the live queue. Completed work needs acceptance evidence. Cancelled, rejected or superseded work needs its decision and successor impact. Blocked and review work remains active.
-
-Before cleanup, inspect affected state and recoverability; promote durable facts before removing an obsolete copy. Deletion additionally requires no active dependency, retained evidence, applicable retention rules, and sufficient authorization. Age or a clean audit alone never establishes deletion safety. See [lifecycle protocol](references/lifecycle-protocol.md).
-
-For creation/adoption, evidence correction, reopening, owner migration and interrupted cleanup, see [document and evidence transitions](references/lifecycle-transitions.md). Lifecycle and confidence are separate: an archived result can remain valid, while a once-accepted result can later require retraction. Reopening preserves its historical outcome and creates a distinct corrective attempt. Interrupted closeout resumes without duplicating archive rows.
+A question, read-only review, or isolated typo fix stays small. ProjectOS does not require a new plan, task record, or lifecycle operation for every edit.
 
 ## Installation
 
-Run one of the following commands from the client's skills directory, using `project-os` as the destination folder name.
+Stable release: **[v2026.10.09](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09)**.
 
-Default branch:
+In Codex, ask the built-in skill installer:
 
-```bash
-git clone https://github.com/SII-penguins/projectOS.git project-os
+```text
+Install the project-os skill from SII-penguins/projectOS at tag v2026.10.09.
+The skill is at the repository root. If it is already installed, back up the
+current version before replacing it and validate the installed package.
 ```
 
-The Astra/lifecycle review branch described in [PR #5](https://github.com/SII-penguins/projectOS/pull/5):
+For a fresh manual installation:
 
-```bash
-git clone --branch codex/astra-projectos-review --single-branch https://github.com/SII-penguins/projectOS.git project-os
+```sh
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+git clone --depth 1 --branch v2026.10.09 \
+  https://github.com/SII-penguins/projectOS.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/project-os"
 ```
 
-Choose one command, not both. The review-branch command selects that revision explicitly; it does not imply the PR has been merged into the default branch.
+If `project-os` already exists, preserve that directory and any local changes before updating; do not overwrite it blindly. The release also includes a `project-os/` archive and a SHA-256 manifest. Python 3.10+ is required for the bundled command-line tools; they use the standard library. The optional Hook adapter requires POSIX file locking.
 
-For Codex, place the folder under your configured skills directory, normally `$CODEX_HOME/skills/project-os`. If `project-os` already exists, inspect its changes before updating; do not replace an independently modified installation. Installation does not merge the PR or start background project maintenance.
+The installed skill is available for subsequent turns. Installing it does not modify your projects' `AGENTS.md` files or enable a global Hook.
 
-## Tooling
+## Get started
 
-Python 3.10 or newer; standard library only.
+### 1. Start a project or adopt an existing one
 
-```bash
-python scripts/validate_skill.py .
-python -m unittest discover -s tests -v
-python scripts/audit_project_docs.py /path/to/project
+Use an explicit request for the initial setup:
+
+```text
+Use $project-os to organize this project. Read the existing documentation first,
+preserve its layout and approval rules, and propose the smallest useful plan
+and document updates for this goal: [describe your goal].
 ```
 
-The package validator checks metadata, resources and Python syntax. Unit tests check script behavior. Neither proves a model will follow a workflow; [behavioral scenarios](references/evaluation-scenarios.md) describe separate evaluations.
+For an existing project, keep its current authoritative files. Typical responsibilities are:
 
-Package metadata checks support ordinary plain/quoted strings and basic folded/literal description blocks. They reject ambiguous discovery keys, damaged UTF-8 and wrong explicit skill names, but are not a general YAML schema validator for arbitrary optional extensions. Use a YAML-aware client validator for richer metadata. ProjectOS runtime tooling still needs only the standard library.
+| Responsibility | Common location |
+| --- | --- |
+| Working rules and entry instructions | `AGENTS.md` |
+| Current state, blockers, next action | `PROGRESS.md` |
+| Active tasks, dependencies, acceptance | `TODO.md` |
+| Phases and exit criteria | An existing plan |
+| Accepted requirements | An existing specification or contract |
+| Terminal outcomes and retained evidence | Existing archives or run records |
 
-The lifecycle auditor is read-only with respect to the project. It checks supported Markdown structure, task tables, queue/archive consistency, task references, phase drift and trust-column presence. It does not inspect experiment artifact contents or certify completion/deletion. A wording-only edit does not need a full audit.
+These are responsibilities, not mandatory filenames. A small project can combine them in clearly separated sections; custom paths can be mapped in `projectos.audit.json`.
 
-Reports state which documents/sections and checks were actually covered. Empty scans are errors; absent optional roles mean some checks did not run. Dependency cycles, unresolved prerequisites, ambiguous next-task prose, duplicate archive attempts and task-level stale dates are surfaced for review.
+### 2. Add a short project entry
 
-For an existing layout, use `projectos.audit.json`:
+To make everyday use implicit, add an instruction suited to the project's existing policy. For example:
 
-```json
-{
-  "documents": {
-    "entrypoint": "00/AGENTS.md",
-    "progress": "00/STATE.md",
-    "todo": "02/WORK.md",
-    "plan": "02/PLAN.md",
-    "run_registry": "02/RUNS.md"
-  },
-  "task_archive_globs": ["02/archive/**/*.md"],
-  "thresholds": {"max_progress_lines": 250}
-}
+> For tracked work, consult the relevant task, acceptance, contracts, and existing authorization before acting. Use ProjectOS when state or evidence needs reconciliation. Update the existing owners of changed facts, retire outdated current conclusions, and preserve unfinished obligations. Generic continuation does not lift an explicit approval hold. Reuse valid authorization; unchanged facts need no writeback. Keep read-only work and unrelated small edits within their requested scope.
+
+Adapt this to the actual owner paths and project rules. Confirm that a new session receives the applicable instructions, including nested or worktree-specific overrides. See [adoption and daily work](references/daily-work.md).
+
+### 3. Work in ordinary language
+
+Once adopted, you can say:
+
+| Request | Expected behavior |
+| --- | --- |
+| “Continue.” | Select eligible work from current obligations and authorization; wait if a specific approval is still missing. |
+| “Fix this bug and run the agreed checks.” | Complete authorized work and synchronize changed results and verification sources. |
+| “Read the failed run's receipt; do not retry.” | Record the actual outcome while retaining unmet acceptance and the retry boundary. |
+| “Explain the current state without editing anything.” | Read and explain; leave project files unchanged. |
+| “Only fix the typo in README.” | Make that edit without unrelated governance changes. |
+
+You can still invoke `$project-os` explicitly whenever you want planning or reconciliation.
+
+## Tools you can use
+
+Run these from the installed `project-os` directory, substituting the actual project path.
+
+**Read-only document audit:**
+
+```sh
+python -B scripts/audit_project_docs.py /path/to/project
 ```
 
-Configured inputs must exist and remain within the project. Unmapped optional default files may be absent; `null` disables an optional role. `run` remains a legacy alias for `run_registry`. Status aliases cannot make active work terminal. See the lifecycle reference for other options.
+For an existing custom layout:
 
-A combined document can use mappings such as `"todo": {"path": "PROJECT.md", "section": "Active work"}` and `"archive": {"path": "PROJECT.md", "section": "History"}`. Missing or ambiguous headings fail visibly. See [auditor format and coverage](references/audit-format.md) for supported inputs, prerequisite semantics and limitations.
+```sh
+python -B scripts/audit_project_docs.py /path/to/project \
+  --config projectos.audit.json --format json
+```
 
-JSON reports use `--format json`. Optional `--output /path/outside/project/report.json` must be outside the audited project. Exit codes: 0 for no findings at the chosen threshold, 1 for findings meeting `--fail-on`, 2 for invalid inputs or execution errors. Warnings still need interpretation; a zero exit code is not semantic certification.
+**Preview instruction discovery:**
 
-## Design and evaluation
+```sh
+python -B scripts/check_projectos_adoption.py /path/to/project \
+  --cwd /path/to/project
+```
 
-This revision applies the [GPT-6 Astra model guidance](https://developers.openai.com/api/docs/guides/latest-model) and Eric Provencher's [Rethinking skills and prompts for GPT-6 Astra](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra). See [review findings and validation](ASTRA_REVIEW.md).
+This checks static discovery; it does not prove a running session has ingested the instructions.
 
-The core ownership and evidence rules remain model-independent. The revision removes unnecessary process constraints rather than hardcoding a model or requiring an API migration.
+**Make a governed document change:** use the scoped `projectos.change` tool if your host exposes it, or the bounded CLI described in [lifecycle changes](references/lifecycle-change.md). It captures before-state, checks proposed changes and drift, performs scoped writes, and records the actual result. It does not run arbitrary shell commands. Read-only explanations and unrelated prose edits do not need this entry.
+
+## How to interpret results
+
+A run ending, a task being complete, and an acceptance claim being supported are separate facts. A failed run can be terminal while its task remains blocked and its acceptance remains open.
+
+An audit checks supported document structure. A change receipt binds an operation to recorded files and checks. Neither supplies authorization nor proves implementation correctness or research validity. Keep warnings that do not affect the decision in scope; resolve real contradictions without changing requirements or audit policy merely to obtain a clean report.
+
+When evidence is withdrawn, correct the current claims and preserve the original observations as history. When a change is interrupted, compare the actual files and operation journal before resuming; do not roll back the entire workspace.
+
+## Reference guide
+
+| Need | Read |
+| --- | --- |
+| Plan or onboard a project | [Onboarding and invocation](references/onboarding-and-invocation.md) |
+| Continue work and choose the next action | [Daily work](references/daily-work.md) |
+| Choose a minimal document structure | [Document blueprints](references/document-blueprints.md) |
+| Reconcile, archive, or close work | [Lifecycle protocol](references/lifecycle-protocol.md) |
+| Retract evidence or reopen acceptance | [Lifecycle transitions](references/lifecycle-transitions.md) |
+| Submit scoped changes and recover interruptions | [Lifecycle change entry](references/lifecycle-change.md) |
+| Map custom files and understand audit coverage | [Audit format](references/audit-format.md) |
+| Integrate optional host observations | [Host adapter](references/host-adapter.md) |
+
+The optional adapter is for a deliberately configured host. It is not enabled by installation, does not create a background task runner, and does not guarantee that ordinary editing tools cannot bypass the entry. Recorded-input coverage also does not provide cross-file transactions or protection against every external concurrent writer.
+
+## Development and validation
+
+```sh
+python -B scripts/validate_skill.py .
+PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s tests -v
+```
+
+Program tests, host integration checks, and model behavior evaluations establish different things. Release notes describe the evidence and its tested scope. Historical development reviews remain available in the repository; they are not the user guide or a promise of universal model reliability.

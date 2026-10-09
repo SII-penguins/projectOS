@@ -33,3 +33,5 @@ Apply user corrections to the active task while preserving completed work. A sid
 For a project intended to continue across sessions, put conditional document routing and writeback in its existing agent entrypoint, following `references/document-blueprints.md`. Skill installation/invocation alone does not install a background watcher or guarantee every future coding turn reloads this skill.
 
 Report the result, relevant evidence, unresolved dependencies, and a usable next action. Avoid turning the final answer into a reproduction of the entire document system.
+
+For an adopted project, use `references/daily-work.md` to connect ordinary authorized work to minimal writeback. Distinguish read-only inspection from task ownership. Installation alone does not update existing entrypoints or running sessions.

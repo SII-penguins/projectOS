@@ -176,6 +176,59 @@ class AuditPrecisionTest(unittest.TestCase):
             )
             self.assertEqual(self.audit_json(root)["findings"], [])
 
+    def test_blocked_queue_preserves_partial_stage_without_false_activity_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.make_base_project(root)
+            plan = root / "doc/IMPLEMENTATION_PLAN.md"
+            plan.write_text(plan.read_text().replace("| Active |", "| Partial |"))
+            todo = root / "TODO.md"
+            todo.write_text(todo.read_text().replace("| Ready |", "| Blocked |"))
+            before = {str(p): p.read_bytes() for p in root.rglob('*') if p.is_file()}
+            self.assertNotIn("NO_ACTIVE_STAGE", self.codes(root))
+            self.assertEqual(before, {str(p): p.read_bytes() for p in root.rglob('*') if p.is_file()})
+            # Partial acceptance cannot excuse an actually Ready queue with no
+            # executing stage, nor an entirely completed roadmap with open work.
+            todo.write_text(todo.read_text().replace("| Blocked |", "| Ready |"))
+            self.assertIn("NO_ACTIVE_STAGE", self.codes(root))
+            todo.write_text(todo.read_text().replace("| Ready |", "| Blocked |"))
+            plan.write_text(plan.read_text().replace("| Partial |", "| Completed |"))
+            self.assertIn("NO_ACTIVE_STAGE", self.codes(root))
+
+    def test_partial_upstream_and_active_downstream_are_not_two_executing_stages(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.make_base_project(root)
+            plan = root / "doc/IMPLEMENTATION_PLAN.md"
+            plan.write_text(plan.read_text() + "\n| Stage | Status |\n| --- | --- |\n| S0 | Partial |\n")
+            self.assertNotIn("MULTIPLE_ACTIVE_STAGES", self.codes(root))
+
+    def test_unrelated_partial_stage_cannot_hide_closed_current_stage_with_open_work(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.make_base_project(root)
+            plan = root / "doc/IMPLEMENTATION_PLAN.md"
+            plan.write_text(plan.read_text().replace("| Active |", "| Completed |")
+                            + "\n| Stage | Status |\n| --- | --- |\n| S0 | Partial |\n")
+            todo = root / "TODO.md"
+            todo.write_text(todo.read_text().replace("| Ready |", "| Blocked |"))
+            self.assertIn("NO_ACTIVE_STAGE", self.codes(root))
+
+    def test_ambiguous_current_identity_cannot_supply_waiting_exemption(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.make_base_project(root)
+            plan = root / "doc/IMPLEMENTATION_PLAN.md"
+            original = plan.read_text()
+            todo = root / "TODO.md"
+            todo.write_text(todo.read_text().replace("| Ready |", "| Blocked |"))
+            for current_status in ("Completed", "Partial"):
+                plan.write_text(original.replace("| Active |", f"| {current_status} |")
+                                + "\n| Stage | Status |\n| --- | --- |\n| S1 historical | Partial |\n")
+                codes = self.codes(root)
+                self.assertIn("NO_ACTIVE_STAGE", codes)
+                self.assertIn("PHASE_IDENTITY_AMBIGUOUS", codes)
+
     def test_duplicate_configuration_keys_fail_visibly(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

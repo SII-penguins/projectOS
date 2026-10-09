@@ -29,3 +29,11 @@ For a staged-review request, check that the requested pause remains. For an auth
 ## Tool regressions
 
 The unit suite covers the read-only boundary, configured paths/sections, audit coverage, queue/archive consistency, dependency cycles/readiness, phase drift, trust-field detection, Markdown tables, Unicode task references, per-task freshness and package integrity. These checks do not read experiment artifacts or certify deletion safety. Record warnings and unsupported formats rather than presenting their absence as a semantic proof.
+
+## Lifecycle change evaluation
+
+Establish a baseline before altering instructions. Compare four isolated variants with the same model, effort, input state, permissions and task requests: installed baseline; instructions-only; instructions plus transition checks; optional host adapter. Keep the expected outcome outside the evaluator's input. Do not expose the final answer, defect label or corrective patch to the evaluating model.
+
+Include implicit normal work, multi-turn waiting/failure, scoped upstream acceptance, missing obligations after compaction, existing implementation versus stale specs, interrupted archival, concurrent owner edits, different worktrees, and read-only/minor-edit controls. Judge required facts/obligations preserved, authorized next action, acceptance scope and actual artifacts. Record unnecessary reads/writes and token/time cost separately. Zero serious violations applies only to the executed finite suite.
+
+A deterministic replay of before/after fixtures measures checker behavior. Injecting hook JSON measures the adapter contract. Neither is a model trial, actual host delivery test, or an automatic-wakeup guarantee. If those evaluations are not authorized/available, retain explicit unexecuted cases and do not promote engineering checks to full workflow acceptance.

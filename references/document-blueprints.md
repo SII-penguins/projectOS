@@ -61,3 +61,5 @@ A diagnostic preserves reasoning that would otherwise be lost: observations, exp
 Lessons record real mistakes and when their prevention rule applies. Retire obsolete rules explicitly so one old failure does not constrain all future tasks.
 
 Read `references/team-blueprint.md` only when defining collaboration. Stable team rules do not own live assignments and need not impose a reviewer or worker count.
+
+For adoption in an existing project and the short daily writeback template, use `references/daily-work.md`. Verify effective entrypoint scope before considering integration complete; preserve project-specific authority.

@@ -113,6 +113,87 @@ class AuditBoundaryTest(unittest.TestCase):
             self.assertTrue(any(f['code'] == 'ARCHIVE_STATUS_UNKNOWN' and
                                 f['severity'] == 'ERROR' for f in findings))
 
+    def test_explicit_attempt_kind_has_separate_terminal_semantics(self):
+        for outcome in ('FAILED','ABORTED','SUCCEEDED','COMPLETED','CANCELLED'):
+            with self.subTest(outcome=outcome), tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);self.make_base_project(root)
+                self.write(root,'doc/archive/TASKS.md',COMMON.format(owner='terminal outcomes')+
+                    '\n| ID | Object | Status | Evidence |\n| --- | --- | --- | --- |\n'
+                    f'| R-017 | run/attempt | {outcome} | receipt.json |\n')
+                codes=self.codes(root)
+                self.assertNotIn('ARCHIVE_STATUS_UNKNOWN',codes)
+                self.assertNotIn('ARCHIVE_ACTIVE_TASK',codes)
+
+    def test_completed_attempt_is_not_successful_task_prerequisite(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);self.make_base_project(root)
+            todo=root/'TODO.md';todo.write_text(todo.read_text().replace('| None |','| R-017 |'))
+            self.write(root,'doc/archive/TASKS.md',COMMON.format(owner='terminal outcomes')+
+                '\n| ID | Object | Status | Evidence |\n| --- | --- | --- | --- |\n'
+                '| R-017 | run | COMPLETED | receipt.json |\n')
+            self.assertIn('DEPENDENCY_NOT_DONE',self.codes(root))
+
+    def test_archive_kind_and_outcome_unknowns_stay_explicit(self):
+        for kind,outcome,code in [('run','RUNNING','ARCHIVE_ACTIVE_ATTEMPT'),
+                                  ('attempt','mystery','ARCHIVE_STATUS_UNKNOWN'),
+                                  ('milestone','Done','ARCHIVE_OBJECT_UNKNOWN'),
+                                  ('task','FAILED','ARCHIVE_STATUS_UNKNOWN')]:
+            with self.subTest(kind=kind,outcome=outcome), tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);self.make_base_project(root)
+                self.write(root,'doc/archive/TASKS.md',COMMON.format(owner='terminal outcomes')+
+                    '\n| ID | Object | Status | Evidence |\n| --- | --- | --- | --- |\n'
+                    f'| R-017 | {kind} | {outcome} | receipt.json |\n')
+                self.assertIn(code,self.codes(root))
+
+    def test_failed_attempt_diagnostic_preserves_error_facts_and_open_work(self):
+        for outcome in ('FAILED', 'ABORTED'):
+            with self.subTest(outcome=outcome), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                self.make_base_project(root)
+                todo = root / 'TODO.md'
+                todo.write_text(todo.read_text().replace('| Ready |', '| Blocked |')
+                                .replace('| None |', '| Retry authorization |')
+                                .replace('Check passes', 'All 12 inputs validated'))
+                self.write(root, 'receipt.json', json.dumps({
+                    'status': outcome, 'validated': 7, 'required': 12,
+                    'retry_authorized': False}))
+                self.write(root, 'doc/archive/TASKS.md', COMMON.format(owner='terminal outcomes') +
+                           '\n| ID | Status | Evidence |\n| --- | --- | --- |\n'
+                           f'| R-001 | {outcome} | receipt.json: 7/12; no retry authorization |\n')
+                before = {p.relative_to(root): p.read_bytes()
+                          for p in root.rglob('*') if p.is_file()}
+                result = self.run_command(str(AUDITOR), str(root), '--today', TODAY,
+                                          '--format', 'json')
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                finding = next(f for f in json.loads(result.stdout)['findings']
+                               if f['code'] == 'ARCHIVE_STATUS_UNKNOWN')
+                self.assertEqual(finding['severity'], 'ERROR')
+                self.assertIn(f'Archive row `R-001` reports `{outcome}`', finding['message'])
+                self.assertIn('finished run/attempt or unfinished task', finding['message'])
+                self.assertIn('does not establish task acceptance or retry authorization', finding['message'])
+                self.assertIn('retain this finding', finding['message'])
+                self.assertIn('necessary and already authorized', finding['message'])
+                self.assertEqual(before, {p.relative_to(root): p.read_bytes()
+                                          for p in root.rglob('*') if p.is_file()})
+
+    def test_custom_failed_terminal_is_not_a_successful_prerequisite(self):
+        # An isolated unit fixture exercises existing custom-vocabulary semantics;
+        # this does not add FAILED to defaults or any model-evaluation fixture.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.make_base_project(root)
+            todo = root / 'TODO.md'
+            todo.write_text(todo.read_text().replace('| None |', '| R-001 |'))
+            self.write(root, 'doc/archive/TASKS.md', COMMON.format(owner='terminal outcomes') +
+                       '\n| ID | Status | Evidence |\n| --- | --- | --- |\n'
+                       '| R-001 | FAILED | failed attempt receipt |\n')
+            self.write(root, 'projectos.audit.json', json.dumps({'terminal_task_statuses': ['FAILED']}))
+            findings = self.audit_json(root)['findings']
+            self.assertNotIn('ARCHIVE_STATUS_UNKNOWN', {f['code'] for f in findings})
+            blocked = [f for f in findings if f['code'] == 'DEPENDENCY_NOT_DONE']
+            self.assertEqual(len(blocked), 1)
+            self.assertIn('`R-001` is `failed`', blocked[0]['message'])
+
     def test_status_alias_cannot_make_blocked_terminal(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

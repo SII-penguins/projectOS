@@ -7,6 +7,10 @@ from pathlib import Path
 
 ACTIVE = {"pending", "ready", "in progress", "in-progress", "blocked", "review"}
 TERMINAL = {"done", "completed", "cancelled", "canceled", "superseded", "rejected"}
+# These belong only to an explicitly identified run/attempt. They never extend
+# task completion or successful-prerequisite vocabularies.
+ATTEMPT_TERMINAL = {"succeeded", "failed", "aborted", "cancelled", "canceled", "completed"}
+ATTEMPT_ACTIVE = {"pending", "queued", "starting", "running", "in progress", "in-progress"}
 TASK_RE = re.compile(r"(?<![\w-])([\w]+(?:-[\w]+)+)(?![\w-])")
 DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})\b")
 META = ("Status", "Canonical For", "Last Reconciled", "Freshness Rule", "Archive Rule")
@@ -312,6 +316,7 @@ def validate_config(cfg):
         "active_task_statuses",
         "terminal_task_statuses",
         "thresholds",
+        "evidence_columns",
     }
     if set(cfg) - allowed:
         raise ValueError(f"Unknown audit config keys: {sorted(set(cfg)-allowed)}")
@@ -338,6 +343,7 @@ def validate_config(cfg):
         "task_archive_globs",
         "active_task_statuses",
         "terminal_task_statuses",
+        "evidence_columns",
     ):
         values = cfg.get(key, [])
         if not isinstance(values, list) or any(
@@ -369,7 +375,7 @@ def validate_config(cfg):
             raise ValueError(f"{key} must be a positive integer")
 
 
-def discover(root, cfg):
+def discover(root, cfg, roles=None):
     validate_config(cfg)
     d = dict(cfg.get("documents", {}))
     if "run_registry" in d:
@@ -385,6 +391,8 @@ def discover(root, cfg):
 
     entrypoint = "AGENTS.md" if (root / "AGENTS.md").is_file() else "CLAUDE.md"
     for key, default in {"entrypoint": entrypoint, **DEFAULTS}.items():
+        if roles is not None and key not in roles:
+            continue
         value = d.get(key, default)
         if value is None:
             continue
@@ -395,16 +403,18 @@ def discover(root, cfg):
             raise ValueError(f"Configured document does not exist: {value}")
         if q.is_file():
             docs[key] = (q, select_section(read_source(q), section))
-    for pat in ["doc/diagnostics/*.md", *cfg.get("diagnostics_globs", [])]:
+    diagnostic_patterns = ["doc/diagnostics/*.md", *cfg.get("diagnostics_globs", [])] if roles is None else []
+    for pat in diagnostic_patterns:
         for q in root.glob(pat):
             q = inside(root, q)
             if q.is_file():
                 docs[f"diag:{q}"] = (q, read_source(q))
-    for pat in [
+    archive_patterns = [
         "doc/archive/TASKS.md",
         "doc/archive/tasks/**/*.md",
         *cfg.get("task_archive_globs", []),
-    ]:
+    ] if roles is None or "archive" in roles else []
+    for pat in archive_patterns:
         for q in root.glob(pat):
             q = inside(root, q)
             if "archive" in docs and q == docs["archive"][0]:
@@ -440,29 +450,90 @@ def is_archive(key):
     return key == "archive" or key.startswith("archive:")
 
 
-def task_records(path, text):
+EVIDENCE_COLUMNS = (
+    "Evidence", "Evidence / Decision", "Acceptance / Decision", "Decision",
+    "Artifact", "Evidence and Boundary", "Scope and evidence",
+)
+EMPTY_EVIDENCE = {"", "pending", "none", "tbd", "待确认", "待确认项", "not run"}
+
+
+def evidence_column(heads, cfg=None):
+    return idx(heads, *EVIDENCE_COLUMNS, *(cfg or {}).get("evidence_columns", []))
+
+
+def record_object_kind(heads, cells):
+    column = idx(heads, "Object")
+    if column is None:
+        return "task"  # Existing untyped task-table interpretation is unchanged.
+    value = norm(cells[column])
+    if value in {"run", "attempt", "run/attempt"}:
+        return "attempt"
+    return "task" if value == "task" else "unknown"
+
+
+def record_terminal(record, task_terminal):
+    kind = record.get("object_kind", "task")
+    if kind == "attempt":
+        return record["status"] in ATTEMPT_TERMINAL
+    return kind == "task" and record["status"] in task_terminal
+
+
+def task_records(path, text, cfg=None):
     for heads, rows in task_tables(text):
         ii = idx(heads, "ID")
         si = idx(heads, "Status", "Final Status")
         di = idx(heads, "Dependencies", "Dependency")
-        ei = idx(
-            heads,
-            "Evidence",
-            "Evidence / Decision",
-            "Acceptance / Decision",
-            "Decision",
-            "Artifact",
-            "Evidence and Boundary",
-        )
+        evidence_indices = list(dict.fromkeys(
+            i for name in (*EVIDENCE_COLUMNS, *(cfg or {}).get("evidence_columns", []))
+            if (i := idx(heads, name)) is not None))
+        ei = evidence_indices[0] if evidence_indices else None
+        ai = idx(heads, "Acceptance Gate", "Acceptance")
+        oi = idx(heads, "Owner")
         for line, cells in rows:
+            populated = [cells[i] for i in evidence_indices if norm(cells[i]) not in EMPTY_EVIDENCE]
+            evidence = " ; ".join(populated) if populated else cells[ei] if ei is not None else None
             yield {
                 "id": cells[ii].strip("` "),
                 "status": norm(cells[si]),
+                "object_kind": record_object_kind(heads, cells),
                 "dependencies": cells[di] if di is not None else "",
-                "evidence": cells[ei] if ei is not None else None,
+                "acceptance": cells[ai] if ai is not None else None,
+                "owner": cells[oi] if oi is not None else None,
+                "evidence": evidence,
+                "evidence_state": ("unsupported" if ei is None else
+                                   "empty" if norm(evidence) in EMPTY_EVIDENCE else
+                                   "present_unverified"),
                 "path": path,
                 "line": line,
             }
+
+
+def duplicate_current_fields(path, text, root):
+    """Compare fields inside one Markdown heading scope, never across history."""
+    scopes, seen, out = [], {}, []
+    keys = {"current phase", "current stage", "next task", "next action"}
+    for line_no, line in enumerate(markdown_text(text).splitlines(), 1):
+        heading = re.match(r"^ {0,3}(#{1,6})[ \t]+(.+?)\s*$", line)
+        if heading:
+            level = len(heading[1])
+            scopes = [item for item in scopes if item[0] < level]
+            # The physical heading identity prevents merging two independent sections.
+            scopes.append((level, line_no))
+        match = re.match(r"^\s*(?:[-*]\s*)?([\w ]+)\s*:\s*(.*?)\s*$", line)
+        if not match or norm(match[1]) not in keys:
+            continue
+        key = (tuple(scopes), norm(match[1]))
+        if key in seen:
+            old, old_line = seen[key]
+            conflict = norm(old) != norm(match[2])
+            out.append(finding("ERROR" if conflict else "WARN",
+                               "CURRENT_FIELD_CONFLICT" if conflict else "CURRENT_FIELD_DUPLICATE",
+                               rel(path, root),
+                               f"Repeated `{match[1]}` in the same heading scope; first at line {old_line}.",
+                               line_no))
+        else:
+            seen[key] = (match[2], line_no)
+    return out
 
 
 def dependency_findings(root, records, archived, active):
@@ -489,15 +560,18 @@ def dependency_findings(root, records, archived, active):
                         record["line"],
                     )
                 )
-            elif record["status"] in {"ready", "in progress", "in-progress", "review"} and target[
-                "status"
-            ] not in {"done", "completed"}:
+            elif record["status"] in {"ready", "in progress", "in-progress", "review"} and (
+                target["status"] not in {"done", "completed"}
+                or target.get("object_kind", "task") != "task"
+            ):
                 out.append(
                     finding(
                         "WARN",
                         "DEPENDENCY_NOT_DONE",
                         rel(record["path"], root),
-                        f"Task `{tid}` is `{record['status']}` but prerequisite `{dep}` is `{target['status']}`; verify readiness.",
+                        f"Task `{tid}` is `{record['status']}` but prerequisite `{dep}` is `{target['status']}`"
+                        + (" on a run/attempt, not task acceptance" if target.get("object_kind") == "attempt" else "")
+                        + "; verify readiness.",
                         record["line"],
                     )
                 )
@@ -653,6 +727,8 @@ def audit(root, today, cfg, docs=None):
             )
         text = markdown_text(text)
         out += metadata(p, text, root)
+        if key == "progress":
+            out += duplicate_current_fields(p, text, root)
         state, state_line = field(text, "Status")
         if key in {
             "progress",
@@ -722,7 +798,7 @@ def audit(root, today, cfg, docs=None):
                     "Dependencies": idx(h, "Dependencies", "Dependency"),
                     "Next Action": idx(h, "Next Action", "Next"),
                     "Acceptance Gate": idx(h, "Acceptance Gate", "Acceptance"),
-                    "Evidence": idx(h, "Evidence", "Artifact"),
+                    "Evidence": evidence_column(h, cfg),
                     "Last Touched": idx(h, "Last Touched", "Last Updated", "Updated"),
                 }
                 for n, x in required.items():
@@ -988,6 +1064,8 @@ def audit(root, today, cfg, docs=None):
                 ii = idx(h, "ID")
                 si = idx(h, "Status", "Final Status")
                 for line, c in rows:
+                    kind = record_object_kind(h, c)
+                    record = {"object_kind": kind, "status": norm(c[si])}
                     if not c[ii].strip("` "):
                         out.append(
                             finding(
@@ -998,7 +1076,13 @@ def audit(root, today, cfg, docs=None):
                                 line,
                             )
                         )
-                    if norm(c[si]) in active:
+                    if kind == "unknown":
+                        out.append(finding("ERROR", "ARCHIVE_OBJECT_UNKNOWN", rel(p, root),
+                                           f"Archive row `{c[ii]}` has an unsupported Object value; inspect its obligation and outcome separately.", line))
+                    elif kind == "attempt" and norm(c[si]) in ATTEMPT_ACTIVE:
+                        out.append(finding("ERROR", "ARCHIVE_ACTIVE_ATTEMPT", rel(p, root),
+                                           f"Run/attempt `{c[ii]}` is still `{c[si]}` in a terminal archive.", line))
+                    elif kind == "task" and norm(c[si]) in active:
                         out.append(
                             finding(
                                 "ERROR",
@@ -1008,32 +1092,35 @@ def audit(root, today, cfg, docs=None):
                                 line,
                             )
                         )
-                    elif norm(c[si]) not in terminal:
+                    elif not record_terminal(record, terminal):
                         out.append(
                             finding(
                                 "ERROR",
                                 "ARCHIVE_STATUS_UNKNOWN",
                                 rel(p, root),
-                                f"Task `{c[ii]}` has unverified terminal status `{c[si]}`.",
+                                f"Archive row `{c[ii]}` reports `{c[si]}`, outside the "
+                                + ("supported run/attempt terminal vocabulary. " if kind == "attempt" else "configured terminal vocabulary. ")
+                                +
+                                "Verify the raw outcome and whether this records a finished run/attempt or unfinished task. "
+                                "Attempt termination does not establish task acceptance or retry authorization. "
+                                "If facts and remaining obligations are correct, retain this finding and report its scope; "
+                                "clearing a vocabulary finding does not itself require a configuration change. "
+                                "Change configuration only when necessary and already authorized, through a controlled path covering the changed input.",
                                 line,
                             )
                         )
-            for record in task_records(p, text):
-                if record["status"] in terminal and norm(record["evidence"]) in {
-                    "",
-                    "pending",
-                    "none",
-                    "tbd",
-                    "待确认",
-                    "待确认项",
-                    "not run",
-                }:
+            for record in task_records(p, text, cfg):
+                if record_terminal(record, terminal) and record["evidence_state"] == "unsupported":
+                    out.append(finding("WARN", "ARCHIVE_EVIDENCE_UNSUPPORTED", rel(p, root),
+                                       f"Evidence column for `{record['id']}` is not recognized; map evidence_columns or inspect directly.",
+                                       record["line"]))
+                elif record_terminal(record, terminal) and record["evidence_state"] == "empty":
                     out.append(
                         finding(
                             "WARN",
                             "ARCHIVE_EVIDENCE_MISSING",
                             rel(p, root),
-                            f"Terminal task `{record['id']}` lacks outcome evidence or a recorded cancellation decision.",
+                            f"Terminal {'run/attempt' if record.get('object_kind') == 'attempt' else 'task'} `{record['id']}` lacks outcome evidence or a recorded cancellation decision.",
                             record["line"],
                         )
                     )
@@ -1041,9 +1128,9 @@ def audit(root, today, cfg, docs=None):
     progress = docs.get("progress")
     plan = docs.get("plan")
     active_ids = task_ids(todo[1], active) if todo else set()
-    records = list(task_records(*todo)) if todo else []
+    records = list(task_records(*todo, cfg)) if todo else []
     archive_records = [
-        r for key, doc in docs.items() if is_archive(key) for r in task_records(*doc)
+        r for key, doc in docs.items() if is_archive(key) for r in task_records(*doc, cfg)
     ]
     archived = {}
     for record in archive_records:
@@ -1129,13 +1216,32 @@ def audit(root, today, cfg, docs=None):
                     pl,
                 )
             )
-        if active_ids and not stages:
+        # A queue containing only explicit waits need not invent an executing
+        # Active stage. Preserve partial acceptance when the roadmap still
+        # contains an unfinished stage; a wholly closed roadmap still conflicts.
+        waiting_only = bool(active_ids) and all(
+            r["status"] in {"blocked", "waiting", "paused", "awaiting approval"}
+            for r in records if r["id"] in active_ids
+        )
+        matching_stages = [row for row in plan_stages(plan[1])
+                           if ph and stage_identity(row[0]) == stage_identity(ph)]
+        if len(matching_stages) > 1:
+            out.append(finding(
+                "WARN", "PHASE_IDENTITY_AMBIGUOUS", rel(plan[0], root),
+                f"Current phase `{ph}` matches multiple roadmap rows; resolve their scope before inferring a waiting state."
+            ))
+        tracked_wait = (waiting_only and len(matching_stages) == 1
+                        and matching_stages[0][2] in
+                        {"partial", "partially accepted", "blocked", "waiting", "paused"})
+        if active_ids and not stages and not tracked_wait:
             out.append(
                 finding(
                     "WARN",
                     "NO_ACTIVE_STAGE",
                     rel(plan[0], root),
-                    "Active tasks exist but no active roadmap stage is identified; verify lifecycle alignment.",
+                    "Active tasks exist but no active roadmap stage is identified; verify lifecycle alignment. "
+                    "An intentional wait can name its matching unfinished stage in Current Phase. "
+                    "Do not relabel partial acceptance as Active merely to clear this warning.",
                 )
             )
     for tid in active_ids & set(archived):
