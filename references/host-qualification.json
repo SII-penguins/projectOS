@@ -186,6 +186,74 @@
       "receipt_written": false,
       "changed_owners": [],
       "structural_status": "not_applicable"
+    },
+    {
+      "case": "linked_worktree_primary_source",
+      "passed": true,
+      "thread_id": "01a11faa-5cb6-71e3-87e4-8c3dc61bdb4f",
+      "turn_id": "01a11faa-5d1a-7d93-87c7-f897f835a7e1",
+      "trace_sha256": "a1330f197afeb7365c0b25f01994d4c9124cee86cddd0fd66fa2fd909c32a331",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 1
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 1
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": true,
+      "receipt_written": true,
+      "changed_owners": [],
+      "structural_status": "partial"
+    },
+    {
+      "case": "primary_checkout_outside_profile",
+      "passed": true,
+      "thread_id": "01a11faa-d885-75c1-92e6-0a2a70d343d4",
+      "turn_id": "01a11faa-d8eb-7cf0-87b8-84f3c131857c",
+      "trace_sha256": "06c7ebb9409d61b6db137d9d58bb5c69cdba85370d0264836deb9f08b06ceefa",
+      "events": [
+        {
+          "event": "sessionStart",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "preToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "postToolUse",
+          "status": "completed",
+          "entry_count": 0
+        },
+        {
+          "event": "stop",
+          "status": "completed",
+          "entry_count": 0
+        }
+      ],
+      "successful_tool_calls": 1,
+      "baseline_written": false,
+      "receipt_written": false,
+      "changed_owners": [],
+      "structural_status": "not_applicable"
     }
   ],
   "regressions": {
@@ -218,5 +286,13 @@
     "Excluded-session test adds an exclusion after the two unchanged-profile session checks; it produces no baseline or receipt.",
     "Raw authenticated traces stay in private delivery evidence. Published digest records identify them; no private credentials or account data are distributed."
   ],
-  "reuse_rule": "Match runtime/build, transport/executor, relevant configuration, adapter implementation hashes and project-observe semantics. Verify each project root, exact handler trust, audit mapping and a fresh-session smoke result."
+  "reuse_rule": "Match runtime/build, transport/executor, relevant configuration, adapter implementation hashes and project-observe semantics. Verify each project root, exact handler trust, audit mapping and a fresh-session smoke result. For linked worktrees, match the actual primary-checkout source and obtain applicable authority; a locally written worktree file is not evidence of discovery.",
+  "linked_worktree": {
+    "supported_with": "authorized primary-checkout Hook source plus worktree-specific profile",
+    "unsupported": "worktree-only Hook definitions under this loader",
+    "observed_discovery": "zero from linked-only file; four from primary-checkout source",
+    "scope_effect": "handlers also invoked in primary checkout, with empty output and no adapter state outside the profile root",
+    "source": "https://github.com/openai/codex/blob/979011409de0a60b52f179721948e65531d26144/codex-rs/config/src/loader/mod.rs#L1782",
+    "original_checkout_mutation_requires": "applicable scope authority; no automatic exception to read-only rules"
+  }
 }

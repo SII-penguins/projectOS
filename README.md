@@ -21,12 +21,12 @@ A question, read-only review, or isolated typo fix stays small. ProjectOS does n
 
 ## Installation
 
-Stable release: **[v2026.10.09.1](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09.1)**.
+Stable release: **[v2026.10.09.2](https://github.com/SII-penguins/projectOS/releases/tag/v2026.10.09.2)**.
 
 In Codex, ask the built-in skill installer:
 
 ```text
-Install the project-os skill from SII-penguins/projectOS at tag v2026.10.09.1.
+Install the project-os skill from SII-penguins/projectOS at tag v2026.10.09.2.
 The skill is at the repository root. If it is already installed, back up the
 current version before replacing it and validate the installed package.
 ```
@@ -35,7 +35,7 @@ For a fresh manual installation:
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone --depth 1 --branch v2026.10.09.1 \
+git clone --depth 1 --branch v2026.10.09.2 \
   https://github.com/SII-penguins/projectOS.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/project-os"
 ```
@@ -156,7 +156,7 @@ with one small fresh-session smoke check. Document disabling and existing-sessio
 
 The [shipped host qualification](references/host-qualification.json) covers the recorded Codex 0.161.0 desktop/local execution path; other environments need matching evidence. Publication and installation alone do not verify your project.
 
-After one-time project configuration and host trust, new sessions need no allowlist update. The scope covers the configured root and ordinary subdirectories, excluding nested Git repositories/worktrees, external worktrees and symlink escapes. Enroll other worktrees separately. Use `excluded_sessions` to protect existing conversations. Existing allowlist profiles keep their behavior; bounded continuation still requires the original exact authorization mode. See [host setup](references/host-adapter.md#one-time-project-setup) for the profile and acceptance checks.
+After one-time project configuration and host trust, new sessions need no allowlist update. The scope covers the configured root and ordinary subdirectories, excluding nested Git repositories/worktrees, external worktrees and symlink escapes. Give other worktrees separate profiles and verify the actual Hook source: Codex 0.161.0 loads linked-worktree definitions from the primary checkout. Writing that shared source requires applicable authority; see the host guide. Use `excluded_sessions` to protect existing conversations. Existing allowlist profiles keep their behavior; bounded continuation still requires the original exact authorization mode. See [host setup](references/host-adapter.md#one-time-project-setup) for the profile and acceptance checks.
 
 You can request setup from a session interrupted during document maintenance. Have the agent reread the actual installed Skill, inspect pending edits and operation journals, and preserve unfinished work instead of rolling back the repository or replacing its layout. Keep developer qualification in an isolated fixture; ordinary enrollment reuses matching evidence and checks one fresh project session. Do not reconstruct missing pre-edit snapshots for past turns. After configuration, host trust and any necessary reload, observation starts with subsequent turns that have complete events. If the old session cannot load the new configuration, continue in a new session rather than claiming a successful hot reload.
 
