@@ -156,6 +156,8 @@ same profile, then document how to disable observation or exclude an existing se
 
 After one-time project configuration and host trust, new sessions need no allowlist update. The scope covers the configured root and ordinary subdirectories, excluding nested Git repositories/worktrees, external worktrees and symlink escapes. Enroll other worktrees separately. Use `excluded_sessions` to protect existing conversations. Existing allowlist profiles keep their behavior; bounded continuation still requires the original exact authorization mode. See [host setup](references/host-adapter.md#one-time-project-setup) for the profile and acceptance checks.
 
+You can request setup from a session interrupted during document maintenance. Have the agent reread the actual installed Skill, inspect pending edits and operation journals, and preserve unfinished work instead of rolling back the repository or replacing its layout. Run the first Hook trial in isolated new sessions. Do not reconstruct missing pre-edit snapshots for past turns. After configuration, host trust and any necessary reload, observation starts with subsequent turns that have complete events. If the old session cannot load the new configuration, continue in a new session rather than claiming a successful hot reload.
+
 ## Development and validation
 
 ```sh
